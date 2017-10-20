@@ -1,11 +1,12 @@
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QVBoxLayout, QTextEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QVBoxLayout, QLineEdit
 from PyQt5.QtGui import *
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, pyqtSignal
 from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
+import ClasseSerie
 
 #controller, MVC
 # -*- coding: utf-8 -*-
@@ -33,17 +34,17 @@ class MyWindow(QMainWindow):
         # self.scrollArea.setWidget(self.mainWidget)
         # self.setCentralWidget(self.scrollArea)
         # self.gridLayout.addWidget(QPushButton('yo'))
-        # TODO : Afficher widget de serie
         self.textLabel = QLabel(nameWindow)
         self.textLabel.setText(nameWindow)
         self.textLabel.setTextFormat(QtCore.Qt.RichText)
         self.textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
         self.UI.gridLayout.addWidget(self.textLabel)
-        self.searchWidget = QTextEdit()
+        self.searchWidget = QLineEdit()
         self.searchWidget.setMaximumSize(100,100)
-        self.searchWidget.setAcceptRichText(True)
-        self.searchText = self.searchWidget.toPlainText()
+        #self.searchWidget.setAcceptRichText(True)
+        self.searchWidget.returnPressed.connect(self.slot_text_changed)
         self.UI.gridLayout.addWidget(self.searchWidget, 0, 2)
+        # TODO : Changer serieWidget
         if typeWindow == "serie":
             serieWidget = MainWidget(1, series_list[1])
             self.UI.gridLayout.addWidget(serieWidget)
@@ -57,7 +58,9 @@ class MyWindow(QMainWindow):
                 self.newWidgetlist += [newWidget]
                 self.UI.gridLayout.addWidget(newWidget, *positions[i])
                 i+=1
-
+    def slot_text_changed(self):
+        self.searchText = self.searchWidget.text()
+        print(self.searchText)
 
 class MainWidget(QFrame):
     def __init__(self, id, serie):
