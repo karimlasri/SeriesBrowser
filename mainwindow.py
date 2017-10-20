@@ -35,17 +35,29 @@ class MyWindow(QMainWindow):
         # self.scrollArea = QScrollArea()
         # self.scrollArea.setWidget(self.mainWidget)
         # self.setCentralWidget(self.scrollArea)
-        # self.gridLayout.addWidget(QPushButton('yo'))
+
+        #Name of the window
         self.textLabel = QLabel(nameWindow)
         self.textLabel.setText(nameWindow)
         self.textLabel.setTextFormat(QtCore.Qt.RichText)
         self.textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
         self.UI.horizontalLayout.addWidget(self.textLabel)
+
+        #Add research bar
         self.searchWidget = QLineEdit()
         self.searchWidget.setMaximumSize(100,100)
         #self.searchWidget.setAcceptRichText(True)
         self.searchWidget.returnPressed.connect(self.slot_text_changed)
         self.UI.horizontalLayout.addWidget(self.searchWidget)
+
+        #Add ok button
+        self.okResearch = QPushButton("Search")
+        self.okResearch.setFixedSize(100,40)
+        self.okResearch.pressed.connect(self.slot_text_changed)
+        self.UI.horizontalLayout.addWidget(self.okResearch)
+
+
+
         # TODO : Changer serieWidget
         if typeWindow == "serie":
             serieWidget = MainWidget(1, series_list[1])
@@ -89,7 +101,7 @@ class MainWidget(QFrame):
         self.text = QLabel(serie.name)
         self.text.setText(serie.name)
         self.layout.addWidget(self.text)
-        self.layout.addWidget(QPushButton(self.text))
+        self.layout.addWidget(QPushButton("Add to favorite"))
 #        self.UI.verticalLayout.addWidget(self.img)
 #        self.UI.text.setPlainText(serie.name)
 #        self.size = QSize(100,100)
