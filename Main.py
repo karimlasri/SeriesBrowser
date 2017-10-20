@@ -5,11 +5,9 @@ Created on Tue Oct 17 15:19:52 2017
 @author: Karim
 """
 
-from urllib.request import Request, urlopen
-import json
+from Search import search
 import time
 import urllib
-from ClasseSerie import *
 from mainwindow import *
 
 #URLs disponibles
@@ -33,37 +31,12 @@ C13 = "shows/1/cast" #Show cast
 C14 = "shows/1/crew" #Show crew
 
 
-nameList = []
-imgList = []
-dico = {}
 seriesList = []
 #SEARCH
 search_terms = "girls"
-req = Request(base_URL+C1+search_terms, headers={'User-Agent': 'Mozilla/5.0'})
-webpage = urlopen(req).read()
-data = json.loads(webpage.decode())
 
-for e in data:
-    name = e["show"]["name"]
-    idnum = e["show"]["id"]
-    name = e["show"]["name"]
-    language = e["show"]["language"]
-    genres = e["show"]["genres"]
-    premiered = e["show"]["premiered"]
-    rating = e["show"]["rating"]
-    summary = e["show"]["summary"]
-    image = ""
-    if e["show"]["image"] != None:
-        image = e["show"]["image"]["medium"]
-    else :
-        image = "http://www.qygjxz.com/data/out/31/5754152-black-image.jpg"
-    serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
-    seriesList += [serie]
-    dico[name]=image
-nVids = len(nameList)
-print(nameList)
-print(nVids)
-print(imgList)
+
+search(search_terms, seriesList)
 
 if __name__ == '__main__':
 
