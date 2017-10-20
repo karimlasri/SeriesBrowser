@@ -1,6 +1,6 @@
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QSize, pyqtSignal
 from PyQt5 import QtCore
@@ -8,6 +8,8 @@ from math import ceil
 from urllib.request import Request, urlopen
 import ClasseSerie
 from Search import search
+import os
+from newwindow import *
 
 #controller, MVC
 # -*- coding: utf-8 -*-
@@ -49,6 +51,21 @@ class MyWindow(QMainWindow):
         self.searchWidget.returnPressed.connect(self.slot_research)
         self.UI.horizontalLayout.addWidget(self.searchWidget)
 
+        #Add favourites list
+        self.favouritesWidget = QListWidget()
+        self.UI.horizontalLayout_2.addWidget(self.favouritesWidget)
+
+        #Load favourites list
+        self.favouritesIDList = []
+        fileName = "favoris"
+        if os.path.exists(fileName):
+            with open(fileName, "rb") as favFile:
+                depickler = pickle.Unpickler(favFile)
+                self.favList = depickler.load()
+                for i in range(len(self.favList)):
+                    favItem = QString(self.favList[i].name)
+                    self.favouritesWidget.addItem(favItem)
+
         #Add ok button
         self.okResearch = QPushButton("Search")
         self.okResearch.setFixedSize(100,40)
@@ -69,6 +86,7 @@ class MyWindow(QMainWindow):
                 self.widgetlist += [newWidget]
                 self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
                 i+=1
+
     def slot_research(self):
         self.searchText = self.searchWidget.text()
         print(self.searchText)
@@ -80,12 +98,11 @@ class MyWindow(QMainWindow):
             newWidget = MainWidget(i, self.seriesList[i])
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
 
-            
         #     self.UI.gridLayout.addWidget(newWidget, *positions[i])
 
 class MainWidget(QFrame):
-    def __init__(self, id, serie):
-        super().__init__()
+    def __init__(self, id, serie, parent = None):
+        super(MainWidget, self).__init__(parent)
 #        self.UI = uic.loadUi('mainwidget.ui', self)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -100,10 +117,14 @@ class MainWidget(QFrame):
         self.text = QLabel(serie.name)
         self.text.setText(serie.name)
         self.layout.addWidget(self.text)
-        self.layout.addWidget(QPushButton("Add to favorite"))
+        self.favButton = QPushButton("Add to favorite")
+        self.favButton.clicked.connect(self.open_new_window)
+        self.layout.addWidget(self.favButton)
 #        self.UI.verticalLayout.addWidget(self.img)
 #        self.UI.text.setPlainText(serie.name)
 #        self.size = QSize(100,100)
         self.setMaximumSize(100,100)
 
-
+    def open_new_window(self):
+        self.newWindow = NewWindow(self)
+        self.newWindow.exec_()
