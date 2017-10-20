@@ -12,8 +12,6 @@ from mainwindow import *
 
 #URLs disponibles
 
-
-
 base_URL =  "http://api.tvmaze.com/"
 C1 = "search/shows?q=" #Classic Search
 C2 = "singlesearch/shows?q=girls" #Another type of search (less interesting in our case)
@@ -30,11 +28,9 @@ C12 = "seasons/1/episodes" #Season episodes
 C13 = "shows/1/cast" #Show cast
 C14 = "shows/1/crew" #Show crew
 
-
 seriesList = []
 #SEARCH
 search_terms = "girls"
-
 
 search(search_terms, seriesList)
 
