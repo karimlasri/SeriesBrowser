@@ -7,7 +7,7 @@ from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
 import ClasseSerie
-from Search import search
+from Search import searchSeries
 import os
 from newwindow import *
 
@@ -92,18 +92,17 @@ class MyWindow(QMainWindow):
         print(self.searchText)
         for i in reversed(range(self.UI.gridLayout.count())):
             self.UI.gridLayout.itemAt(i).widget().setParent(None)
-        search(self.searchText, self.seriesList)
+        searchSeries(self.searchText, self.seriesList)
         for i in range(self.nDisplay):
             print(self.seriesList[i].name)
             newWidget = MainWidget(i, self.seriesList[i])
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
 
-        #     self.UI.gridLayout.addWidget(newWidget, *positions[i])
-
 class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):
         super(MainWidget, self).__init__(parent)
 #        self.UI = uic.loadUi('mainwidget.ui', self)
+        self.ser = serie
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.id = serie.id
@@ -113,18 +112,21 @@ class MainWidget(QFrame):
         data = urlopen(serie.image).read()
         self.pixmap.loadFromData(data)
         self.img = self.img.setPixmap(self.pixmap)
-        self.layout.addWidget(self.img)
+
         self.text = QLabel(serie.name)
         self.text.setText(serie.name)
         self.layout.addWidget(self.text)
+        self.layout.addWidget(self.img)
         self.favButton = QPushButton("Add to favorite")
-        self.favButton.clicked.connect(self.open_new_window)
+        self.serieButton = QPushButton("+")
+        self.serieButton.clicked.connect(self.open_new_window)
         self.layout.addWidget(self.favButton)
+        self.layout.addWidget(self.serieButton)
 #        self.UI.verticalLayout.addWidget(self.img)
 #        self.UI.text.setPlainText(serie.name)
 #        self.size = QSize(100,100)
         self.setMaximumSize(100,100)
 
     def open_new_window(self):
-        self.newWindow = NewWindow(self)
+        self.newWindow = NewWindow(self.ser, self)
         self.newWindow.exec_()

@@ -5,7 +5,7 @@ Created on Tue Oct 17 15:19:52 2017
 @author: Karim
 """
 
-from Search import search
+from Search import searchSeries
 import time
 import urllib
 from mainwindow import *
@@ -32,7 +32,7 @@ seriesList = []
 #SEARCH
 search_terms = "girls"
 
-search(search_terms, seriesList)
+searchSeries(search_terms, seriesList)
 
 if __name__ == '__main__':
 
