@@ -22,6 +22,8 @@ Created on Thu Oct  5 14:58:00 2017
 class MyWindow(QMainWindow):
     def __init__(self,n_display, series_list, nameWindow, typeWindow):
         super().__init__()
+        self.nDisplay = n_display
+        self.seriesList = series_list
         self.UI = uic.loadUi('main.ui', self)
         self.showMaximized()
         self.horizontalLayoutList = []
@@ -49,18 +51,26 @@ class MyWindow(QMainWindow):
             serieWidget = MainWidget(1, series_list[1])
             self.UI.gridLayout.addWidget(serieWidget)
             
-        numberHorizontalLayout = ceil(n_display/5)
-        positions = [(i+1,j) for i in range(numberHorizontalLayout) for j in range(5)]
-        self.newWidgetlist = []
+        self.numberHorizontalLayout = ceil(n_display/5)
+        self.positions = [(i+1,j) for i in range(self.numberHorizontalLayout) for j in range(5)]
+        self.widgetlist = []
         i=0
         for i in range(n_display):
-                newWidget = MainWidget(i, series_list[i])
-                self.newWidgetlist += [newWidget]
-                self.UI.gridLayout.addWidget(newWidget, *positions[i])
+                newWidget = MainWidget(i, self.seriesList[i])
+                self.widgetlist += [newWidget]
+                self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
                 i+=1
     def slot_text_changed(self):
         self.searchText = self.searchWidget.text()
         print(self.searchText)
+        for i in reversed(range(self.UI.gridLayout.count())):
+            self.UI.gridLayout.itemAt(i).widget().setParent(None)
+        for i in range(self.nDisplay):
+            newWidget = MainWidget(i, self.seriesList[i])
+            self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
+
+            
+        #     self.UI.gridLayout.addWidget(newWidget, *positions[i])
 
 class MainWidget(QFrame):
     def __init__(self, id, serie):
