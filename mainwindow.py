@@ -7,6 +7,7 @@ from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
 import ClasseSerie
+from Search import search
 
 #controller, MVC
 # -*- coding: utf-8 -*-
@@ -15,8 +16,6 @@ Created on Thu Oct  5 14:58:00 2017
 
 @author: Karim
 """
-
-
 
 
 class MyWindow(QMainWindow):
@@ -47,16 +46,14 @@ class MyWindow(QMainWindow):
         self.searchWidget = QLineEdit()
         self.searchWidget.setMaximumSize(100,100)
         #self.searchWidget.setAcceptRichText(True)
-        self.searchWidget.returnPressed.connect(self.slot_text_changed)
+        self.searchWidget.returnPressed.connect(self.slot_research)
         self.UI.horizontalLayout.addWidget(self.searchWidget)
 
         #Add ok button
         self.okResearch = QPushButton("Search")
         self.okResearch.setFixedSize(100,40)
-        self.okResearch.pressed.connect(self.slot_text_changed)
+        self.okResearch.pressed.connect(self.slot_research)
         self.UI.horizontalLayout.addWidget(self.okResearch)
-
-
 
         # TODO : Changer serieWidget
         if typeWindow == "serie":
@@ -72,12 +69,14 @@ class MyWindow(QMainWindow):
                 self.widgetlist += [newWidget]
                 self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
                 i+=1
-    def slot_text_changed(self):
+    def slot_research(self):
         self.searchText = self.searchWidget.text()
         print(self.searchText)
         for i in reversed(range(self.UI.gridLayout.count())):
             self.UI.gridLayout.itemAt(i).widget().setParent(None)
+        search(self.searchText, self.seriesList)
         for i in range(self.nDisplay):
+            print(self.seriesList[i].name)
             newWidget = MainWidget(i, self.seriesList[i])
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
 
