@@ -40,12 +40,12 @@ class MyWindow(QMainWindow):
         self.textLabel.setText(nameWindow)
         self.textLabel.setTextFormat(QtCore.Qt.RichText)
         self.textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
-        self.UI.gridLayout.addWidget(self.textLabel)
+        self.UI.horizontalLayout.addWidget(self.textLabel)
         self.searchWidget = QLineEdit()
         self.searchWidget.setMaximumSize(100,100)
         #self.searchWidget.setAcceptRichText(True)
         self.searchWidget.returnPressed.connect(self.slot_text_changed)
-        self.UI.gridLayout.addWidget(self.searchWidget, 0, 2)
+        self.UI.horizontalLayout.addWidget(self.searchWidget)
         # TODO : Changer serieWidget
         if typeWindow == "serie":
             serieWidget = MainWidget(1, series_list[1])
