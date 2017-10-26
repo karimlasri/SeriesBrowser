@@ -16,7 +16,7 @@ from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
 import ClasseSerie
-from Search import searchSeries
+from Search import searchSeries, searchSerie
 import os
 from newwindow import *
 
@@ -54,9 +54,11 @@ class MyWindow(QMainWindow):
         #Add favourites list
         self.favouritesWidget = QListWidget()
         self.UI.horizontalLayout_2.addWidget(self.favouritesWidget)
+        self.favouritesWidget.itemClicked.connect(self.slot_open_serie_window)
 
         #Load favourites list
         self.favouritesIDList = []
+        self.favouritesSeries = []
         fileName = "favoris"
         if os.path.exists(fileName):
             with open(fileName, "rb") as favFile:
@@ -88,8 +90,21 @@ class MyWindow(QMainWindow):
             newWidget.favButton.clicked.connect(self.sigMapper.map)
 
     def slot_add_to_favourites(self,id):
-        self.favouritesIDList += [id]
-        print("id = ", id)
+        if (id not in self.favouritesIDList):
+            self.favouritesIDList += [id]
+            serie = searchSerie(id)
+            nm = serie.name
+            self.favouritesSeries += [serie]
+            self.favouritesWidget.addItem(nm)
+        else:
+            print("Favourite already added.")
+
+    def slot_open_serie_window(self, item):
+        idx = self.favouritesWidget.currentRow()
+        id = self.favouritesIDList[idx]
+        ser = self.favouritesSeries[idx]
+        self.newWindow = NewWindow(ser, self)
+        self.newWindow.exec_()
 
     def slot_research(self):
         self.searchText = self.searchWidget.text()
@@ -101,6 +116,8 @@ class MyWindow(QMainWindow):
             print(self.seriesList[i].name)
             newWidget = MainWidget(i, self.seriesList[i])
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
+            self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
+            newWidget.favButton.clicked.connect(self.sigMapper.map)
 
 class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):

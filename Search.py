@@ -50,4 +50,22 @@ def searchEpisodes(id, episodes_list):
             image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
         episode = Episode(idnum, name, seas, nb, airdt, airtm, image, summary)
         episodes_list += [episode]
-        
+
+def searchSerie(id):
+    req = Request(base_URL + C8 + str(id), headers={'User-Agent': 'Mozilla/5.0'})
+    webpage = urlopen(req).read()
+    data = json.loads(webpage.decode())
+    idnum = data["id"]
+    name = data["name"]
+    language = data["language"]
+    genres = data["genres"]
+    premiered = data["premiered"]
+    rating = data["rating"]
+    summary = data["summary"]
+    image = ""
+    if data["image"] != None:
+        image = data["image"]["medium"]
+    else:
+        image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
+    serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
+    return(serie)
