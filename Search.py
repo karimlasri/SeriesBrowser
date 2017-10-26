@@ -50,3 +50,4 @@ def searchEpisodes(id, episodes_list):
             image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
         episode = Episode(idnum, name, seas, nb, airdt, airtm, image, summary)
         episodes_list += [episode]
+        

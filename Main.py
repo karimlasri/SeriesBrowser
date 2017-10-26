@@ -37,5 +37,5 @@ searchSeries(search_terms, seriesList)
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    ex = MyWindow(5, seriesList, "HomePage", "HomePage")
+    ex = MyWindow(5, seriesList, "HomePage")
     sys.exit(app.exec_())

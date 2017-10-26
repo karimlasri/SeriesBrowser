@@ -1,8 +1,17 @@
+"""
+Created on Thu Oct  5 14:58:00 2017
+
+@author: Karim
+"""
+
+#controller, MVC
+# -*- coding: utf-8 -*-
+
 import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit
 from PyQt5.QtGui import *
-from PyQt5.QtCore import QSize, pyqtSignal
+from PyQt5.QtCore import QSize, pyqtSignal, QSignalMapper
 from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
@@ -11,17 +20,9 @@ from Search import searchSeries
 import os
 from newwindow import *
 
-#controller, MVC
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Oct  5 14:58:00 2017
-
-@author: Karim
-"""
-
 
 class MyWindow(QMainWindow):
-    def __init__(self,n_display, series_list, nameWindow, typeWindow):
+    def __init__(self,n_display, series_list, nameWindow):
         super().__init__()
         self.nDisplay = n_display
         self.seriesList = series_list
@@ -29,7 +30,6 @@ class MyWindow(QMainWindow):
         self.showMaximized()
         self.horizontalLayoutList = []
         self.name = nameWindow
-        self.type = typeWindow
         # self.mainWidget = QWidget()
         # self.gridLayout = QGridLayout()
         # self.mainWidget.setLayout(self.gridLayout)
@@ -72,20 +72,24 @@ class MyWindow(QMainWindow):
         self.okResearch.pressed.connect(self.slot_research)
         self.UI.horizontalLayout.addWidget(self.okResearch)
 
-        # TODO : Changer serieWidget
-        if typeWindow == "serie":
-            serieWidget = MainWidget(1, series_list[1])
-            self.UI.gridLayout.addWidget(serieWidget)
-            
+        self.sigMapper = QSignalMapper(self)
+        self.sigMapper.mapped.connect(self.slot_add_to_favourites)
+
         self.numberHorizontalLayout = ceil(n_display/5)
         self.positions = [(i+1,j) for i in range(self.numberHorizontalLayout) for j in range(5)]
         self.widgetlist = []
         i=0
         for i in range(n_display):
-                newWidget = MainWidget(i, self.seriesList[i])
-                self.widgetlist += [newWidget]
-                self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
-                i+=1
+            newWidget = MainWidget(i, self.seriesList[i])
+            self.widgetlist += [newWidget]
+            self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
+            i+=1
+            self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
+            newWidget.favButton.clicked.connect(self.sigMapper.map)
+
+    def slot_add_to_favourites(self,id):
+        self.favouritesIDList += [id]
+        print("id = ", id)
 
     def slot_research(self):
         self.searchText = self.searchWidget.text()
@@ -118,8 +122,8 @@ class MainWidget(QFrame):
         self.layout.addWidget(self.text)
         self.layout.addWidget(self.img)
         self.favButton = QPushButton("Add to favorite")
-        self.serieButton = QPushButton("+")
-        self.serieButton.clicked.connect(self.open_new_window)
+        self.serieButton = QPushButton("More Info")
+        self.serieButton.clicked.connect(self.slot_open_new_window)
         self.layout.addWidget(self.favButton)
         self.layout.addWidget(self.serieButton)
 #        self.UI.verticalLayout.addWidget(self.img)
@@ -127,6 +131,6 @@ class MainWidget(QFrame):
 #        self.size = QSize(100,100)
         self.setMaximumSize(100,100)
 
-    def open_new_window(self):
+    def slot_open_new_window(self):
         self.newWindow = NewWindow(self.ser, self)
         self.newWindow.exec_()
