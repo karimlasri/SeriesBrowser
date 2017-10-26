@@ -7,7 +7,6 @@ C1 = "search/shows?q=" #Classic Search
 C8 = "shows/" #Show episodes list (search by ID)
 
 def searchSeries(search_term, series_list):
-
     req = Request(base_URL+C1+search_term, headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())

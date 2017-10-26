@@ -9,7 +9,7 @@ Created on Thu Oct  5 14:58:00 2017
 
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QSize, pyqtSignal, QSignalMapper
 from PyQt5 import QtCore
@@ -19,7 +19,6 @@ import ClasseSerie
 from Search import searchSeries, searchSerie
 import os
 from newwindow import *
-
 
 class MyWindow(QMainWindow):
     def __init__(self,n_display, series_list, nameWindow):
@@ -53,8 +52,17 @@ class MyWindow(QMainWindow):
 
         #Add favourites list
         self.favouritesWidget = QListWidget()
-        self.UI.horizontalLayout_2.addWidget(self.favouritesWidget)
-        self.favouritesWidget.itemClicked.connect(self.slot_open_serie_window)
+        self.favLayout = QVBoxLayout()
+        self.UI.horizontalLayout_2.addLayout(self.favLayout)
+        self.favLayout.addWidget(self.favouritesWidget)
+        self.favButtonsLayout = QHBoxLayout()
+        self.favLayout.addLayout(self.favButtonsLayout)
+        self.moreInfoButton = QPushButton("More Info")
+        self.favButtonsLayout.addWidget(self.moreInfoButton)
+        self.moreInfoButton.clicked.connect(self.slot_open_serie_window)
+        self.removeFavButton = QPushButton("Remove Favourite")
+        self.favButtonsLayout.addWidget(self.removeFavButton)
+        self.removeFavButton.clicked.connect(self.slot_remove_favourite)
 
         #Load favourites list
         self.favouritesIDList = []
@@ -99,7 +107,7 @@ class MyWindow(QMainWindow):
         else:
             print("Favourite already added.")
 
-    def slot_open_serie_window(self, item):
+    def slot_open_serie_window(self):
         idx = self.favouritesWidget.currentRow()
         id = self.favouritesIDList[idx]
         ser = self.favouritesSeries[idx]
@@ -118,6 +126,12 @@ class MyWindow(QMainWindow):
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
             newWidget.favButton.clicked.connect(self.sigMapper.map)
+
+    def slot_remove_favourite(self):
+        idx = self.favouritesWidget.currentRow()
+        del self.favouritesSeries[idx]
+        del self.favouritesIDList[idx]
+        self.favouritesWidget.takeItem(idx)
 
 class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):
