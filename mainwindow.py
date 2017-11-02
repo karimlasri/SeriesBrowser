@@ -9,7 +9,7 @@ Created on Thu Oct  5 14:58:00 2017
 
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QSpacerItem, QSizePolicy, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QSize, pyqtSignal, QSignalMapper
 from PyQt5 import QtCore
@@ -29,12 +29,8 @@ class MyWindow(QMainWindow):
         self.showMaximized()
         self.horizontalLayoutList = []
         self.name = nameWindow
-        # self.mainWidget = QWidget()
-        # self.gridLayout = QGridLayout()
-        # self.mainWidget.setLayout(self.gridLayout)
-        # self.scrollArea = QScrollArea()
-        # self.scrollArea.setWidget(self.mainWidget)
-        # self.setCentralWidget(self.scrollArea)
+        
+        
 
         #Name of the window
         self.textLabel = QLabel(nameWindow)
@@ -42,6 +38,15 @@ class MyWindow(QMainWindow):
         self.textLabel.setTextFormat(QtCore.Qt.RichText)
         self.textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
         self.UI.horizontalLayout.addWidget(self.textLabel)
+        
+        #Scroll area
+        self.serieWind = QWidget()
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setWidget(self.serieWind)
+        self.gridLayout = QGridLayout()
+        self.serieWind.setLayout(self.gridLayout)
+        self.UI.horizontalLayout_2.addWidget(self.scrollArea)
 
         #Add research bar
         self.searchWidget = QLineEdit()
@@ -52,6 +57,7 @@ class MyWindow(QMainWindow):
 
         #Add favourites list
         self.favouritesWidget = QListWidget()
+        self.favouritesWidget.setMaximumWidth(220)
         self.favLayout = QVBoxLayout()
         self.UI.horizontalLayout_2.addLayout(self.favLayout)
         self.favLayout.addWidget(self.favouritesWidget)
@@ -92,7 +98,7 @@ class MyWindow(QMainWindow):
         for i in range(n_display):
             newWidget = MainWidget(i, self.seriesList[i])
             self.widgetlist += [newWidget]
-            self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
+            self.gridLayout.addWidget(newWidget, *self.positions[i])
             i+=1
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
             newWidget.favButton.clicked.connect(self.sigMapper.map)
@@ -137,30 +143,46 @@ class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):
         super(MainWidget, self).__init__(parent)
 #        self.UI = uic.loadUi('mainwidget.ui', self)
+        
+        #Attributes
         self.ser = serie
+        self.id = serie.id
+        
+        #Size
+        self.sizePolicy = QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
+        self.QSizePolicy = self.sizePolicy
+        self.setMinimumSize(100,170)
+        
+        #Layout
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.id = serie.id
+
+        #Text : display serie name
+        self.text = QLabel(serie.name)
+#        self.UI.text.setText(serie.name)
+#        self.UI.text.setTextFormat(QtCore.Qt.RichText)
+#        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+serie.name+"</span>")
+        self.layout.addWidget(self.text)
+        
+        #Image : display serie image
         self.img = QLabel(self)
+        self.img.setMinimumSize(100,100)
         self.img.setScaledContents(True)
         self.pixmap = QPixmap()
         data = urlopen(serie.image).read()
         self.pixmap.loadFromData(data)
         self.img = self.img.setPixmap(self.pixmap)
 
-        self.text = QLabel(serie.name)
-        self.text.setText(serie.name)
-        self.layout.addWidget(self.text)
+
+#        spacer1 = QSpacerItem(80,80,QSizePolicy.Maximum,QSizePolicy.Maximum)
+#        self.layout.addItem(spacer1)
         self.layout.addWidget(self.img)
         self.favButton = QPushButton("Add to favorite")
         self.serieButton = QPushButton("More Info")
         self.serieButton.clicked.connect(self.slot_open_new_window)
         self.layout.addWidget(self.favButton)
         self.layout.addWidget(self.serieButton)
-#        self.UI.verticalLayout.addWidget(self.img)
-#        self.UI.text.setPlainText(serie.name)
-#        self.size = QSize(100,100)
-        self.setMaximumSize(100,100)
+#        self.setMaximumHeight(200)
 
     def slot_open_new_window(self):
         self.newWindow = NewWindow(self.ser, self)

@@ -29,9 +29,7 @@ class NewWindow(QDialog):
 
     def slot_episode_summary(self, item):
         idx = self.epList.currentRow()
-        print(idx)
         ep = self.episodesList[idx]
         summ = ep.summary
-        print(summ)
         self.epSum.clear()
         self.epSum.insertPlainText(summ)
