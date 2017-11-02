@@ -144,7 +144,7 @@ class MyWindow(QMainWindow):
         del self.favouritesSeries[idx]
         del self.favouritesIDList[idx]
         self.favouritesWidget.takeItem(idx)
-        
+
         with open(self.fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
             pickler.dump(self.favouritesSeries)
@@ -161,7 +161,7 @@ class MainWidget(QFrame):
         #Size
         self.sizePolicy = QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.QSizePolicy = self.sizePolicy
-        self.setMinimumSize(100,170)
+        #self.setMinimumSize(100,170)
         
         #Layout
         self.layout = QVBoxLayout()
@@ -171,17 +171,25 @@ class MainWidget(QFrame):
         self.text = QLabel(serie.name)
 #        self.UI.text.setText(serie.name)
 #        self.UI.text.setTextFormat(QtCore.Qt.RichText)
-#        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+serie.name+"</span>")
+        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+serie.name+"</span>")
+        self.text.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.text)
+
         
         #Image : display serie image
+        self.frame = QFrame()
+        self.imgLayout = QVBoxLayout(self.frame)
+
         self.img = QLabel(self)
-        self.img.setMinimumSize(100,100)
+        #self.img.setMinimumSize(100,100)
         self.img.setScaledContents(True)
         self.pixmap = QPixmap()
         data = urlopen(serie.image).read()
         self.pixmap.loadFromData(data)
-        self.img = self.img.setPixmap(self.pixmap)
+        self.img.setPixmap(self.pixmap)
+        self.img.setAlignment(QtCore.Qt.AlignCenter)
+        self.imgLayout.addWidget(self.img)
+        self.layout.addWidget(self.frame)
 
 #        spacer1 = QSpacerItem(80,80,QSizePolicy.Maximum,QSizePolicy.Maximum)
 #        self.layout.addItem(spacer1)
