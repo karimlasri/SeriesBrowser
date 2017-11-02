@@ -46,6 +46,7 @@ class MyWindow(QMainWindow):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setWidget(self.serieWind)
         self.gridLayout = QGridLayout()
+        self.serieWind.setStyleSheet("background-color: black");
         self.serieWind.setLayout(self.gridLayout)
         self.UI.horizontalLayout_2.addWidget(self.scrollArea)
 
@@ -133,7 +134,7 @@ class MyWindow(QMainWindow):
         for i in reversed(range(self.UI.gridLayout.count())):
             self.UI.gridLayout.itemAt(i).widget().setParent(None)
         searchSeries(self.searchText, self.seriesList)
-        for i in range(self.nDisplay):
+        for i in range(len(self.seriesList)):
             newWidget = MainWidget(i, self.seriesList[i])
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
@@ -153,7 +154,12 @@ class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):
         super(MainWidget, self).__init__(parent)
 #        self.UI = uic.loadUi('mainwidget.ui', self)
-        
+
+        self.setFrameStyle(1)
+        self.setLineWidth(5)
+        self.setObjectName("mainWidget")
+        self.setStyleSheet("#mainWidget{border: 5px solid white;}")
+
         #Attributes
         self.ser = serie
         self.id = serie.id
@@ -162,7 +168,8 @@ class MainWidget(QFrame):
         self.sizePolicy = QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.QSizePolicy = self.sizePolicy
         #self.setMinimumSize(100,170)
-        
+        self.setFixedSize(300,400)
+
         #Layout
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -171,7 +178,7 @@ class MainWidget(QFrame):
         self.text = QLabel(serie.name)
 #        self.UI.text.setText(serie.name)
 #        self.UI.text.setTextFormat(QtCore.Qt.RichText)
-        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+serie.name+"</span>")
+        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#FFFFFF;'>"+serie.name+"</span>")
         self.text.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.text)
 
