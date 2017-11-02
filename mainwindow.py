@@ -19,6 +19,7 @@ import ClasseSerie
 from Search import searchSeries, searchSerie
 import os
 from newwindow import *
+import pickle
 
 class MyWindow(QMainWindow):
     def __init__(self,n_display, series_list, nameWindow):
@@ -73,14 +74,16 @@ class MyWindow(QMainWindow):
         #Load favourites list
         self.favouritesIDList = []
         self.favouritesSeries = []
-        fileName = "favoris"
-        if os.path.exists(fileName):
-            with open(fileName, "rb") as favFile:
+
+        self.fileName = "favoris"
+        if (os.path.exists(self.fileName)) and (os.path.getsize(self.fileName) > 0):
+            with open(self.fileName, "rb") as favFile:
                 depickler = pickle.Unpickler(favFile)
-                self.favList = depickler.load()
-                for i in range(len(self.favList)):
-                    favItem = QString(self.favList[i].name)
+                self.favouritesSeries = depickler.load()
+                for i in range(len(self.favouritesSeries)):
+                    favItem = self.favouritesSeries[i].name
                     self.favouritesWidget.addItem(favItem)
+                    self.favouritesIDList += [self.favouritesSeries[i].id]
 
         #Add ok button
         self.okResearch = QPushButton("Search")
@@ -110,6 +113,11 @@ class MyWindow(QMainWindow):
             nm = serie.name
             self.favouritesSeries += [serie]
             self.favouritesWidget.addItem(nm)
+
+            with open(self.fileName, "wb") as favFile:
+                pickler = pickle.Pickler(favFile)
+                pickler.dump(self.favouritesSeries)
+
         else:
             print("Favourite already added.")
 
@@ -122,12 +130,10 @@ class MyWindow(QMainWindow):
 
     def slot_research(self):
         self.searchText = self.searchWidget.text()
-        print(self.searchText)
         for i in reversed(range(self.UI.gridLayout.count())):
             self.UI.gridLayout.itemAt(i).widget().setParent(None)
         searchSeries(self.searchText, self.seriesList)
         for i in range(self.nDisplay):
-            print(self.seriesList[i].name)
             newWidget = MainWidget(i, self.seriesList[i])
             self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
@@ -138,6 +144,10 @@ class MyWindow(QMainWindow):
         del self.favouritesSeries[idx]
         del self.favouritesIDList[idx]
         self.favouritesWidget.takeItem(idx)
+        
+        with open(self.fileName, "wb") as favFile:
+            pickler = pickle.Pickler(favFile)
+            pickler.dump(self.favouritesSeries)
 
 class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):
@@ -172,7 +182,6 @@ class MainWidget(QFrame):
         data = urlopen(serie.image).read()
         self.pixmap.loadFromData(data)
         self.img = self.img.setPixmap(self.pixmap)
-
 
 #        spacer1 = QSpacerItem(80,80,QSizePolicy.Maximum,QSizePolicy.Maximum)
 #        self.layout.addItem(spacer1)

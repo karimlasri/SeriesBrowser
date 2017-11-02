@@ -33,8 +33,9 @@ seriesList = []
 search_terms = "e"
 searchSeries(search_terms, seriesList)
 seriesList += seriesList
+
+#Reaching 40 results
 seriesList += seriesList
-print(len(seriesList))
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
