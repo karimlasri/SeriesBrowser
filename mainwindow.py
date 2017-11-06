@@ -30,8 +30,6 @@ class MyWindow(QMainWindow):
         self.showMaximized()
         self.horizontalLayoutList = []
         self.name = nameWindow
-        
-        
 
         #Name of the window
         self.textLabel = QLabel(nameWindow)
@@ -46,9 +44,35 @@ class MyWindow(QMainWindow):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setWidget(self.serieWind)
         self.gridLayout = QGridLayout()
-        self.serieWind.setStyleSheet("background-color: black");
+        self.serieWind.setObjectName("serieWind")
+        self.setStyleSheet("#serieWind{background-color: black;}")
         self.serieWind.setLayout(self.gridLayout)
         self.UI.horizontalLayout_2.addWidget(self.scrollArea)
+        self.scrollArea.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"              
+    "    border: 1px solid #999999;"
+    "    background:white;"
+    "    width:10px;    "
+    "    margin: 0px 0px 0px 0px;"
+    "}"
+    "QScrollBar::handle:vertical {"
+    "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+    "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
+    "    min-height: 0px;"
+    "}"
+    "QScrollBar::add-line:vertical {"
+    "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+    "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+    "    height: 0px;"
+    "    subcontrol-position: bottom;"
+    "    subcontrol-origin: margin;"
+    "}"
+    "QScrollBar::sub-line:vertical {"
+    "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+    "    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+    "    height: 0 px;"
+    "    subcontrol-position: top;"
+    "    subcontrol-origin: margin;"
+    "}")
 
         #Add research bar
         self.searchWidget = QLineEdit()
@@ -62,6 +86,9 @@ class MyWindow(QMainWindow):
         self.favouritesWidget.setMaximumWidth(220)
         self.favLayout = QVBoxLayout()
         self.UI.horizontalLayout_2.addLayout(self.favLayout)
+        self.favouritesText = QLabel("Favourites")
+        self.favouritesText.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
+        self.favLayout.addWidget(self.favouritesText)
         self.favLayout.addWidget(self.favouritesWidget)
         self.favButtonsLayout = QHBoxLayout()
         self.favLayout.addLayout(self.favButtonsLayout)
@@ -106,6 +133,9 @@ class MyWindow(QMainWindow):
             i+=1
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
             newWidget.favButton.clicked.connect(self.sigMapper.map)
+
+        print(QFontDatabase().families())
+        print(len(QFontDatabase().families()))
 
     def slot_add_to_favourites(self,id):
         if (id not in self.favouritesIDList):
@@ -156,9 +186,9 @@ class MainWidget(QFrame):
 #        self.UI = uic.loadUi('mainwidget.ui', self)
 
         self.setFrameStyle(1)
-        self.setLineWidth(5)
+        self.setLineWidth(3)
         self.setObjectName("mainWidget")
-        self.setStyleSheet("#mainWidget{border: 5px solid white;}")
+        self.setStyleSheet("#mainWidget{border: 3px solid white;}")
 
         #Attributes
         self.ser = serie
@@ -175,12 +205,20 @@ class MainWidget(QFrame):
         self.setLayout(self.layout)
 
         #Text : display serie name
-        self.text = QLabel(serie.name)
+        print(id)
+        labelString = serie.name
+        #Fonts
+        #labelString = str(id) + ". " + QFontDatabase().families()[id]
+        self.text = QLabel(labelString)
 #        self.UI.text.setText(serie.name)
 #        self.UI.text.setTextFormat(QtCore.Qt.RichText)
-        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#FFFFFF;'>"+serie.name+"</span>")
+
+        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#FFFFFF;'>"+labelString+"</span>")
+        #Fonts
+        #self.text.setFont(QFont(QFontDatabase().families()[id], 20))
         self.text.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.text)
+
 
         
         #Image : display serie image

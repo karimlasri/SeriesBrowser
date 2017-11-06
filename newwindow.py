@@ -32,4 +32,12 @@ class NewWindow(QDialog):
         ep = self.episodesList[idx]
         summ = ep.summary
         self.epSum.clear()
-        self.epSum.insertPlainText(summ)
+        if summ != None :
+            # Remove "<p>" and "<\p>"
+            summList = summ.split("<")
+            summ = summList[1]
+            summList = summ.split(">")
+            summ = summList[1]
+            self.epSum.insertPlainText(summ)
+        else:
+            self.epSum.insertPlainText("No description available.")

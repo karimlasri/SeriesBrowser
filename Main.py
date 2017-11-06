@@ -30,14 +30,19 @@ C14 = "shows/1/crew" #Show crew
 
 seriesList = []
 #SEARCH
-search_terms = "e"
+search_terms = "black"
 searchSeries(search_terms, seriesList)
 seriesList += seriesList
+
+#Fonts
+# seriesList += seriesList
+# seriesList += seriesList
+# seriesList += seriesList
 
 #Reaching 40 results
 seriesList += seriesList
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    ex = MyWindow(40, seriesList, "HomePage")
+    ex = MyWindow(20, seriesList, "HomePage")
     sys.exit(app.exec_())
