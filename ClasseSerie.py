@@ -15,7 +15,16 @@ class Serie:
         self.rating = rat
         self.image = img
         self.summary = summ
-    
+
+    # @property
+    # def name(self):
+    #     return self.__name
+    #
+    # @name.setter
+    # def name(self, newid):
+    #     self.__name = newid
+
+
 class Episode:
     def __init__(self, idnum, nam, seas, nb, airdt, airtm, img, summ):
         self.id = idnum
