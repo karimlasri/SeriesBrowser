@@ -24,68 +24,66 @@ import pickle
 class MyWindow(QMainWindow):
     def __init__(self,n_display, series_list, nameWindow):
         super().__init__()
-        self.nDisplay = n_display
-        self.seriesList = series_list
-        self.UI = uic.loadUi('main.ui', self)
+        self.__nDisplay = n_display
+        self.__seriesList = series_list
+        self.__UI = uic.loadUi('main.ui', self)
         self.showMaximized()
-        self.horizontalLayoutList = []
-        self.name = nameWindow
 
         #Name of the window
-        self.textLabel = QLabel(nameWindow)
-        self.textLabel.setText(nameWindow)
-        self.textLabel.setTextFormat(QtCore.Qt.RichText)
-        self.textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
-        self.UI.horizontalLayout.addWidget(self.textLabel)
+        self.__textLabel = QLabel(nameWindow)
+        self.__textLabel.setText(nameWindow)
+        self.__textLabel.setTextFormat(QtCore.Qt.RichText)
+        self.__textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
+        self.__UI.horizontalLayout.addWidget(self.__textLabel)
         
         #Scroll area
-        self.serieWind = QWidget()
-        self.scrollArea = QScrollArea()
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setWidget(self.serieWind)
-        self.gridLayout = QGridLayout()
-        self.serieWind.setObjectName("serieWind")
+        self.__serieWind = QWidget()
+        self.__scrollArea = QScrollArea()
+        self.__scrollArea.setWidgetResizable(True)
+        self.__scrollArea.setWidget(self.__serieWind)
+        self.__gridLayout = QGridLayout()
+        self.__serieWind.setObjectName("serieWind")
         self.setStyleSheet("#serieWind{background-color: black;}")
-        self.serieWind.setLayout(self.gridLayout)
-        self.UI.horizontalLayout_2.addWidget(self.scrollArea)
-        self.scrollArea.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"              
-    "    border: 1px solid #999999;"
-    "    background:white;"
-    "    width:10px;    "
-    "    margin: 0px 0px 0px 0px;"
-    "}"
-    "QScrollBar::handle:vertical {"
-    "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-    "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
-    "    min-height: 0px;"
-    "}"
-    "QScrollBar::add-line:vertical {"
-    "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-    "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
-    "    height: 0px;"
-    "    subcontrol-position: bottom;"
-    "    subcontrol-origin: margin;"
-    "}"
-    "QScrollBar::sub-line:vertical {"
-    "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-    "    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
-    "    height: 0 px;"
-    "    subcontrol-position: top;"
-    "    subcontrol-origin: margin;"
-    "}")
+        self.__serieWind.setLayout(self.__gridLayout)
+        self.__UI.horizontalLayout_2.addWidget(self.__scrollArea)
+        self.__scrollArea.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"              
+        "    border: 1px solid #999999;"
+        "    background:white;"
+        "    width:10px;    "
+        "    margin: 0px 0px 0px 0px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+        "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
+        "    min-height: 0px;"
+        "}"
+        "QScrollBar::add-line:vertical {"
+        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+        "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+        "    height: 0px;"
+        "    subcontrol-position: bottom;"
+        "    subcontrol-origin: margin;"
+        "}"
+        "QScrollBar::sub-line:vertical {"
+        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+        "    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
+        "    height: 0 px;"
+        "    subcontrol-position: top;"
+        "    subcontrol-origin: margin;"
+        "}")
 
         #Add research bar
         self.searchWidget = QLineEdit()
         self.searchWidget.setMaximumSize(100,100)
         #self.searchWidget.setAcceptRichText(True)
         self.searchWidget.returnPressed.connect(self.slot_research)
-        self.UI.horizontalLayout.addWidget(self.searchWidget)
+        self.__UI.horizontalLayout.addWidget(self.searchWidget)
 
         #Add favourites list
         self.favouritesWidget = QListWidget()
         self.favouritesWidget.setMaximumWidth(220)
         self.favLayout = QVBoxLayout()
-        self.UI.horizontalLayout_2.addLayout(self.favLayout)
+        self.__UI.horizontalLayout_2.addLayout(self.favLayout)
         self.favouritesText = QLabel("Favourites")
         self.favouritesText.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
         self.favLayout.addWidget(self.favouritesText)
@@ -117,7 +115,7 @@ class MyWindow(QMainWindow):
         self.okResearch = QPushButton("Search")
         self.okResearch.setFixedSize(100,40)
         self.okResearch.pressed.connect(self.slot_research)
-        self.UI.horizontalLayout.addWidget(self.okResearch)
+        self.__UI.horizontalLayout.addWidget(self.okResearch)
 
         self.sigMapper = QSignalMapper(self)
         self.sigMapper.mapped.connect(self.slot_add_to_favourites)
@@ -129,13 +127,22 @@ class MyWindow(QMainWindow):
         for i in range(n_display):
             newWidget = MainWidget(i, self.seriesList[i])
             self.widgetlist += [newWidget]
-            self.gridLayout.addWidget(newWidget, *self.positions[i])
+            self.__gridLayout.addWidget(newWidget, *self.positions[i])
             i+=1
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
             newWidget.favButton.clicked.connect(self.sigMapper.map)
 
-        print(QFontDatabase().families())
-        print(len(QFontDatabase().families()))
+    def _get_seriesList(self):
+        return self.__seriesList
+
+    def _set_seriesList(self,newSeriesList):
+        self.__seriesList = newSeriesList
+
+    seriesList = property(_get_seriesList, _set_seriesList)
+
+        #Fonts
+        # print(QFontDatabase().families())
+        # print(len(QFontDatabase().families()))
 
     def slot_add_to_favourites(self,id):
         if (id not in self.favouritesIDList):
@@ -161,12 +168,12 @@ class MyWindow(QMainWindow):
 
     def slot_research(self):
         self.searchText = self.searchWidget.text()
-        for i in reversed(range(self.UI.gridLayout.count())):
-            self.UI.gridLayout.itemAt(i).widget().setParent(None)
+        for i in reversed(range(self.__UI.gridLayout.count())):
+            self.__UI.gridLayout.itemAt(i).widget().setParent(None)
         searchSeries(self.searchText, self.seriesList)
         for i in range(len(self.seriesList)):
             newWidget = MainWidget(i, self.seriesList[i])
-            self.UI.gridLayout.addWidget(newWidget, *self.positions[i])
+            self.__UI.gridLayout.addWidget(newWidget, *self.positions[i])
             self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
             newWidget.favButton.clicked.connect(self.sigMapper.map)
 
@@ -205,7 +212,6 @@ class MainWidget(QFrame):
         self.setLayout(self.layout)
 
         #Text : display serie name
-        print(id)
         labelString = serie.name
         #Fonts
         #labelString = str(id) + ". " + QFontDatabase().families()[id]
