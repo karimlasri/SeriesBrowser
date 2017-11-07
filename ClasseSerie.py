@@ -7,31 +7,63 @@ Created on Tue Oct 17 14:33:35 2017
 
 class Serie:
     def __init__(self, idnum, nam, lang, genr, prem, rat, img, summ):
-        self.id = idnum
-        self.name = nam
+        self.__id = idnum
+        self.__name = nam
         self.language = lang
         self.genres = genr
         self.premiered = prem
         self.rating = rat
-        self.image = img
-        self.summary = summ
+        self.__image = img
+        self.__summary = summ
 
-    # @property
-    # def name(self):
-    #     return self.__name
-    #
-    # @name.setter
-    # def name(self, newid):
-    #     self.__name = newid
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def image(self):
+        return self.__image
+
+    @property
+    def summary(self):
+        return self.__summary
 
 
 class Episode:
     def __init__(self, idnum, nam, seas, nb, airdt, airtm, img, summ):
-        self.id = idnum
-        self.name = nam
+        self.__id = idnum
+        self.__name = nam
         self.season = seas
         self.number = nb
-        self.airdate = airdt
-        self.airtime = airtm
-        self.image = img
-        self.summary = summ
+        self.__airdate = airdt
+        self.__airtime = airtm
+        self.__image = img
+        self.__summary = summ
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def airdate(self):
+        return self.__airdate
+
+    @property
+    def airtime(self):
+        return self.__airtime
+
+    @property
+    def image(self):
+        return self.__image
+
+    @property
+    def summary(self):
+        return self.__summary
