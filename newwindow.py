@@ -5,39 +5,39 @@ from Search import searchEpisodes
 class NewWindow(QDialog):
     def __init__(self, ser, parent = None):
         super(NewWindow,self).__init__(parent)
-        self.serie = ser
-        self.vLayout = QVBoxLayout()
-        self.setLayout(self.vLayout)
-        self.textWidget = QLabel(self.serie.name)
-        self.vLayout.addWidget(self.textWidget)
-        self.resumeWidget = QTextEdit(self.serie.summary)
-        self.vLayout.addWidget(self.resumeWidget)
-        self.hLayout = QHBoxLayout()
-        self.vLayout.addLayout(self.hLayout)
-        self.epList = QListWidget()
-        self.hLayout.addWidget(self.epList)
-        self.epSum = QTextEdit()
-        self.hLayout.addWidget(self.epSum)
+        self.__serie = ser
+        self.__vLayout = QVBoxLayout()
+        self.setLayout(self.__vLayout)
+        self.__textWidget = QLabel(self.__serie.name)
+        self.__vLayout.addWidget(self.__textWidget)
+        self.__resumeWidget = QTextEdit(self.__serie.summary)
+        self.__vLayout.addWidget(self.__resumeWidget)
+        self.__hLayout = QHBoxLayout()
+        self.__vLayout.addLayout(self.__hLayout)
+        self.__epList = QListWidget()
+        self.__hLayout.addWidget(self.__epList)
+        self.__epSum = QTextEdit()
+        self.__hLayout.addWidget(self.__epSum)
         # self.UI = uic.loadUi('dialog.ui', self)
         # self.verticalLayout = QVBoxLayout(self)
-        self.episodesList = []
-        searchEpisodes(self.serie.id, self.episodesList)
-        for i in range(len(self.episodesList)):
-            self.epList.addItem(self.episodesList[i].name)
+        self.__episodesList = []
+        searchEpisodes(self.__serie.id, self.__episodesList)
+        for i in range(len(self.__episodesList)):
+            self.__epList.addItem(self.__episodesList[i].name)
 
-        self.epList.itemClicked.connect(self.slot_episode_summary)
+        self.__epList.itemClicked.connect(self.slot_episode_summary)
 
     def slot_episode_summary(self, item):
-        idx = self.epList.currentRow()
-        ep = self.episodesList[idx]
+        idx = self.__epList.currentRow()
+        ep = self.__episodesList[idx]
         summ = ep.summary
-        self.epSum.clear()
+        self.__epSum.clear()
         if summ != None :
             # Remove "<p>" and "<\p>"
             summList = summ.split("<")
             summ = summList[1]
             summList = summ.split(">")
             summ = summList[1]
-            self.epSum.insertPlainText(summ)
+            self.__epSum.insertPlainText(summ)
         else:
-            self.epSum.insertPlainText("No description available.")
+            self.__epSum.insertPlainText("No description available.")

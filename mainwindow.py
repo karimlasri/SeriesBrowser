@@ -73,119 +73,120 @@ class MyWindow(QMainWindow):
         "}")
 
         #Add research bar
-        self.searchWidget = QLineEdit()
-        self.searchWidget.setMaximumSize(100,100)
+        self.__searchWidget = QLineEdit()
+        self.__searchWidget.setMaximumSize(100,100)
         #self.searchWidget.setAcceptRichText(True)
-        self.searchWidget.returnPressed.connect(self.slot_research)
-        self.__UI.horizontalLayout.addWidget(self.searchWidget)
+        self.__searchWidget.returnPressed.connect(self.slot_research)
+        self.__UI.horizontalLayout.addWidget(self.__searchWidget)
 
         #Add favourites list
-        self.favouritesWidget = QListWidget()
-        self.favouritesWidget.setMaximumWidth(220)
-        self.favLayout = QVBoxLayout()
-        self.__UI.horizontalLayout_2.addLayout(self.favLayout)
-        self.favouritesText = QLabel("Favourites")
-        self.favouritesText.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
-        self.favLayout.addWidget(self.favouritesText)
-        self.favLayout.addWidget(self.favouritesWidget)
-        self.favButtonsLayout = QHBoxLayout()
-        self.favLayout.addLayout(self.favButtonsLayout)
-        self.moreInfoButton = QPushButton("More Info")
-        self.favButtonsLayout.addWidget(self.moreInfoButton)
-        self.moreInfoButton.clicked.connect(self.slot_open_serie_window)
-        self.removeFavButton = QPushButton("Remove Favourite")
-        self.favButtonsLayout.addWidget(self.removeFavButton)
-        self.removeFavButton.clicked.connect(self.slot_remove_favourite)
+        self.__favouritesWidget = QListWidget()
+        self.__favouritesWidget.setMaximumWidth(220)
+        self.__favLayout = QVBoxLayout()
+        self.__UI.horizontalLayout_2.addLayout(self.__favLayout)
+        self.__favouritesTitle = QLabel("Favourites")
+        self.__favouritesTitle.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
+        self.__favLayout.addWidget(self.__favouritesTitle)
+        self.__favLayout.addWidget(self.__favouritesWidget)
+        self.__favButtonsLayout = QHBoxLayout()
+        self.__favLayout.addLayout(self.__favButtonsLayout)
+        self.__favMoreInfoButton = QPushButton("More Info")
+        self.__favButtonsLayout.addWidget(self.__favMoreInfoButton)
+        self.__favMoreInfoButton.clicked.connect(self.slot_open_serie_window)
+        self.__removeFavButton = QPushButton("Remove Favourite")
+        self.__favButtonsLayout.addWidget(self.__removeFavButton)
+        self.__removeFavButton.clicked.connect(self.slot_remove_favourite)
 
         #Load favourites list
-        self.favouritesIDList = []
-        self.favouritesSeries = []
+        self.__favouritesIDList = []
+        self.__favouriteSeries = []
 
-        self.fileName = "favoris"
-        if (os.path.exists(self.fileName)) and (os.path.getsize(self.fileName) > 0):
-            with open(self.fileName, "rb") as favFile:
+        self.__fileName = "favoris"
+        if (os.path.exists(self.__fileName)) and (os.path.getsize(self.__fileName) > 0):
+            with open(self.__fileName, "rb") as favFile:
                 depickler = pickle.Unpickler(favFile)
-                self.favouritesSeries = depickler.load()
-                for i in range(len(self.favouritesSeries)):
-                    favItem = self.favouritesSeries[i].name
-                    self.favouritesWidget.addItem(favItem)
-                    self.favouritesIDList += [self.favouritesSeries[i].id]
+                self.__favouriteSeries = depickler.load()
+                for i in range(len(self.__favouriteSeries)):
+                    favItem = self.__favouriteSeries[i].name
+                    self.__favouritesWidget.addItem(favItem)
+                    self.__favouritesIDList += [self.__favouriteSeries[i].id]
 
-        #Add ok button
-        self.okResearch = QPushButton("Search")
-        self.okResearch.setFixedSize(100,40)
-        self.okResearch.pressed.connect(self.slot_research)
-        self.__UI.horizontalLayout.addWidget(self.okResearch)
+        #Add research button
+        self.__researchButton = QPushButton("Search")
+        self.__researchButton.setFixedSize(100,40)
+        self.__researchButton.pressed.connect(self.slot_research)
+        self.__UI.horizontalLayout.addWidget(self.__researchButton)
 
-        self.sigMapper = QSignalMapper(self)
-        self.sigMapper.mapped.connect(self.slot_add_to_favourites)
+        self.__sigMapper = QSignalMapper(self)
+        self.__sigMapper.mapped.connect(self.slot_add_to_favourites)
 
-        self.numberHorizontalLayout = ceil(n_display/5)
-        self.positions = [(i+1,j) for i in range(self.numberHorizontalLayout) for j in range(5)]
-        self.widgetlist = []
+        self.__numberSeriesWidgetLines = ceil(n_display/5)
+        self.__positions = [(i+1,j) for i in range(self.__numberSeriesWidgetLines) for j in range(5)]
+        self.__seriesWidgetList = []
         i=0
         for i in range(n_display):
-            newWidget = MainWidget(i, self.seriesList[i])
-            self.widgetlist += [newWidget]
-            self.__gridLayout.addWidget(newWidget, *self.positions[i])
+            currentWidget = MainWidget(i, self.__seriesList[i])
+            self.__seriesWidgetList += [currentWidget]
+            self.__gridLayout.addWidget(currentWidget, *self.__positions[i])
             i+=1
-            self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
-            newWidget.favButton.clicked.connect(self.sigMapper.map)
+            self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
+            currentWidget.favButton.clicked.connect(self.__sigMapper.map)
 
-    def _get_seriesList(self):
+    @property
+    def seriesList(self):
         return self.__seriesList
 
-    def _set_seriesList(self,newSeriesList):
+    @seriesList.setter
+    def seriesList(self,newSeriesList):
         self.__seriesList = newSeriesList
 
-    seriesList = property(_get_seriesList, _set_seriesList)
 
         #Fonts
         # print(QFontDatabase().families())
         # print(len(QFontDatabase().families()))
 
     def slot_add_to_favourites(self,id):
-        if (id not in self.favouritesIDList):
-            self.favouritesIDList += [id]
+        if (id not in self.__favouritesIDList):
+            self.__favouritesIDList += [id]
             serie = searchSerie(id)
             nm = serie.name
-            self.favouritesSeries += [serie]
-            self.favouritesWidget.addItem(nm)
+            self.__favouriteSeries += [serie]
+            self.__favouritesWidget.addItem(nm)
 
-            with open(self.fileName, "wb") as favFile:
+            with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
-                pickler.dump(self.favouritesSeries)
+                pickler.dump(self.__favouriteSeries)
 
         else:
             print("Favourite already added.")
 
     def slot_open_serie_window(self):
-        idx = self.favouritesWidget.currentRow()
-        id = self.favouritesIDList[idx]
-        ser = self.favouritesSeries[idx]
+        idx = self.__favouritesWidget.currentRow()
+        id = self.__favouritesIDList[idx]
+        ser = self.__favouriteSeries[idx]
         self.newWindow = NewWindow(ser, self)
         self.newWindow.exec_()
 
     def slot_research(self):
-        self.searchText = self.searchWidget.text()
-        for i in reversed(range(self.__UI.gridLayout.count())):
-            self.__UI.gridLayout.itemAt(i).widget().setParent(None)
-        searchSeries(self.searchText, self.seriesList)
-        for i in range(len(self.seriesList)):
-            newWidget = MainWidget(i, self.seriesList[i])
-            self.__UI.gridLayout.addWidget(newWidget, *self.positions[i])
-            self.sigMapper.setMapping(newWidget.favButton, newWidget.id)
-            newWidget.favButton.clicked.connect(self.sigMapper.map)
+        self.__searchText = self.__searchWidget.text()
+        for i in reversed(range(self.__gridLayout.count())):
+            self.__gridLayout.itemAt(i).widget().setParent(None)
+        searchSeries(self.__searchText, self.__seriesList)
+        for i in range(len(self.__seriesList)):
+            currentWidget = MainWidget(i, self.__seriesList[i])
+            self.__gridLayout.addWidget(currentWidget, *self.__positions[i])
+            self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
+            currentWidget.favButton.clicked.connect(self.__sigMapper.map)
 
     def slot_remove_favourite(self):
-        idx = self.favouritesWidget.currentRow()
-        del self.favouritesSeries[idx]
-        del self.favouritesIDList[idx]
-        self.favouritesWidget.takeItem(idx)
+        idx = self.__favouritesWidget.currentRow()
+        del self.__favouriteSeries[idx]
+        del self.__favouritesIDList[idx]
+        self.__favouritesWidget.takeItem(idx)
 
-        with open(self.fileName, "wb") as favFile:
+        with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
-            pickler.dump(self.favouritesSeries)
+            pickler.dump(self.__favouriteSeries)
 
 class MainWidget(QFrame):
     def __init__(self, id, serie, parent = None):
@@ -198,60 +199,71 @@ class MainWidget(QFrame):
         self.setStyleSheet("#mainWidget{border: 3px solid white;}")
 
         #Attributes
-        self.ser = serie
-        self.id = serie.id
+        self.__ser = serie
+        self.__id = serie.id
         
         #Size
-        self.sizePolicy = QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
-        self.QSizePolicy = self.sizePolicy
-        #self.setMinimumSize(100,170)
+        self.__sizePolicy = QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
+        self.__QSizePolicy = self.__sizePolicy
         self.setFixedSize(300,400)
 
         #Layout
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
+        self.__layout = QVBoxLayout()
+        self.setLayout(self.__layout)
 
         #Text : display serie name
         labelString = serie.name
         #Fonts
         #labelString = str(id) + ". " + QFontDatabase().families()[id]
-        self.text = QLabel(labelString)
+        self.__textLabel = QLabel(labelString)
 #        self.UI.text.setText(serie.name)
 #        self.UI.text.setTextFormat(QtCore.Qt.RichText)
 
-        self.text.setText("<span style=' font-size:16pt; font-weight:600; color:#FFFFFF;'>"+labelString+"</span>")
+        self.__textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#FFFFFF;'>"+labelString+"</span>")
         #Fonts
-        #self.text.setFont(QFont(QFontDatabase().families()[id], 20))
-        self.text.setAlignment(QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.text)
+        #self.__text.setFont(QFont(QFontDatabase().families()[id], 20))
+        self.__textLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.__layout.addWidget(self.__textLabel)
 
 
         
         #Image : display serie image
-        self.frame = QFrame()
-        self.imgLayout = QVBoxLayout(self.frame)
+        self.__frame = QFrame()
+        self.__imgLayout = QVBoxLayout(self.__frame)
 
-        self.img = QLabel(self)
-        #self.img.setMinimumSize(100,100)
-        self.img.setScaledContents(True)
+        self.__img = QLabel(self)
+        #self.__img.setMinimumSize(100,100)
+        self.__img.setScaledContents(True)
         self.pixmap = QPixmap()
         data = urlopen(serie.image).read()
         self.pixmap.loadFromData(data)
-        self.img.setPixmap(self.pixmap)
-        self.img.setAlignment(QtCore.Qt.AlignCenter)
-        self.imgLayout.addWidget(self.img)
-        self.layout.addWidget(self.frame)
+        self.__img.setPixmap(self.pixmap)
+        self.__img.setAlignment(QtCore.Qt.AlignCenter)
+        self.__imgLayout.addWidget(self.__img)
+        self.__layout.addWidget(self.__frame)
 
 #        spacer1 = QSpacerItem(80,80,QSizePolicy.Maximum,QSizePolicy.Maximum)
-#        self.layout.addItem(spacer1)
-        self.layout.addWidget(self.img)
-        self.favButton = QPushButton("Add to favorite")
-        self.serieButton = QPushButton("More Info")
-        self.serieButton.clicked.connect(self.slot_open_new_window)
-        self.layout.addWidget(self.favButton)
-        self.layout.addWidget(self.serieButton)
+#        self.__layout.addItem(spacer1)
+        self.__layout.addWidget(self.__img)
+        self.__favButton = QPushButton("Add to favorite")
+        self.__serieButton = QPushButton("More Info")
+        self.__serieButton.clicked.connect(self.slot_open_new_window)
+        self.__layout.addWidget(self.favButton)
+        self.__layout.addWidget(self.__serieButton)
 #        self.setMaximumHeight(200)
 
+    @property
+    def favButton(self):
+        return self.__favButton
+
+    @property
+    def id(self):
+        return self.__id
+
+    @id.setter
+    def id(self,newid):
+        self.__id = newid
+
     def slot_open_new_window(self):
-        self.newWindow = NewWindow(self.ser, self)
-        self.newWindow.exec_()
+        self.__newWindow = NewWindow(self.__ser, self)
+        self.__newWindow.exec_()
