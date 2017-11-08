@@ -9,7 +9,7 @@ Created on Thu Oct  5 14:58:00 2017
 
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QSpacerItem, QSizePolicy, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QSpacerItem, QSizePolicy, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout, QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QSize, pyqtSignal, QSignalMapper
 from PyQt5 import QtCore
@@ -20,13 +20,23 @@ from Search import searchSeries, searchSerie
 import os
 from newwindow import *
 import pickle
+from alert import Afficher
 
-class MyWindow(QMainWindow):
-    def __init__(self,n_display, series_list, nameWindow):
+class MyWindow(QMainWindow): #Main window of the Serie Browser
+
+
+    def __init__(self,n_display, series_list, nameWindow):  #n_display : number of shows to display when prog is launched,
+                                                            # series_list = list of series to be displayed and retrieved from the API,
+                                                            # nameWindow = name to be displayed
+
         super().__init__()
         self.__nDisplay = n_display
         self.__seriesList = series_list
+
+        #Load .ui designed on Qt
         self.__UI = uic.loadUi('main.ui', self)
+
+        #Show window on desktop
         self.showMaximized()
 
         #Name of the window
@@ -36,17 +46,18 @@ class MyWindow(QMainWindow):
         self.__textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'>"+nameWindow+"</span>")
         self.__UI.horizontalLayout.addWidget(self.__textLabel)
         
-        #Scroll area
-        self.__serieWind = QWidget()
-        self.__scrollArea = QScrollArea()
+        # Define a Scroll area for serie display
+        self.__serieWind = QWidget()        # Create a widget for the scroll area
+        self.__scrollArea = QScrollArea()       # I Create a Scroll Area
         self.__scrollArea.setWidgetResizable(True)
-        self.__scrollArea.setWidget(self.__serieWind)
-        self.__gridLayout = QGridLayout()
+        self.__scrollArea.setWidget(self.__serieWind)       # Insert the scroll area in the widget
+        self.__gridLayout = QGridLayout()       # Create a grid layout for the scroll area
+        self.__serieWind.setLayout(self.__gridLayout)  # Insert the grid layout in the scroll area
+        self.__UI.horizontalLayout_2.addWidget(self.__scrollArea)  # Insert the scroll area in the main horizontal layout from .ui
+
         self.__serieWind.setObjectName("serieWind")
-        self.setStyleSheet("#serieWind{background-color: black;}")
-        self.__serieWind.setLayout(self.__gridLayout)
-        self.__UI.horizontalLayout_2.addWidget(self.__scrollArea)
-        self.__scrollArea.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"              
+        self.setStyleSheet("#serieWind{background-color: black;}")      # Define color of the scroll area
+        self.__scrollArea.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"     # Define style of scroll area              
         "    border: 1px solid #999999;"
         "    background:white;"
         "    width:10px;    "
@@ -72,66 +83,79 @@ class MyWindow(QMainWindow):
         "    subcontrol-origin: margin;"
         "}")
 
-        #Add research bar
+        #  Add research bar
         self.__searchWidget = QLineEdit()
         self.__searchWidget.setMaximumSize(100,100)
-        #self.searchWidget.setAcceptRichText(True)
-        self.__searchWidget.returnPressed.connect(self.slot_research)
-        self.__UI.horizontalLayout.addWidget(self.__searchWidget)
+        self.__searchWidget.returnPressed.connect(self.slot_research)       # Connect the signal return pressed to slot_research
+        self.__UI.horizontalLayout.addWidget(self.__searchWidget)       # Insert research bar in layout from .ui
+        #  Add research button
+        self.__researchButton = QPushButton("Search")
+        self.__researchButton.setFixedSize(100, 40)
+        self.__researchButton.pressed.connect(self.slot_research)       # Connect the signal pressed to slot_research
+        self.__UI.horizontalLayout.addWidget(self.__researchButton)     # Insert research button in layout from .ui
 
-        #Add favourites list
+        #  Add favourites list with a QListWidget
         self.__favouritesWidget = QListWidget()
         self.__favouritesWidget.setMaximumWidth(220)
         self.__favLayout = QVBoxLayout()
         self.__UI.horizontalLayout_2.addLayout(self.__favLayout)
-        self.__favouritesTitle = QLabel("Favourites")
-        self.__favouritesTitle.setText("<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
-        self.__favLayout.addWidget(self.__favouritesTitle)
         self.__favLayout.addWidget(self.__favouritesWidget)
         self.__favButtonsLayout = QHBoxLayout()
         self.__favLayout.addLayout(self.__favButtonsLayout)
+
+        #  Add More Info button for favourites list
         self.__favMoreInfoButton = QPushButton("More Info")
         self.__favButtonsLayout.addWidget(self.__favMoreInfoButton)
-        self.__favMoreInfoButton.clicked.connect(self.slot_open_serie_window)
+        self.__favMoreInfoButton.clicked.connect(self.slot_open_serie_window)       # Connect clicked signal of MoreInfo button to slot_open_serie_window
+
+        #  Add Remove favourite button for favourites list
         self.__removeFavButton = QPushButton("Remove Favourite")
         self.__favButtonsLayout.addWidget(self.__removeFavButton)
-        self.__removeFavButton.clicked.connect(self.slot_remove_favourite)
+        self.__removeFavButton.clicked.connect(self.slot_remove_favourite)      # Connect clicked signal to Remove button to slot_remove_favourites
 
-        #Load favourites list
-        self.__favouritesIDList = []
-        self.__favouriteSeries = []
 
-        self.__fileName = "favoris"
-        if (os.path.exists(self.__fileName)) and (os.path.getsize(self.__fileName) > 0):
+        #  Add favourites title
+        self.__favouritesTitle = QLabel("Favourites")
+        self.__favouritesTitle.setText(
+            "<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
+        self.__favLayout.addWidget(self.__favouritesTitle)
+
+        #Create and load favourites list
+        self.__favouritesIDList = []        # Creation of a ID list of favourites
+        self.__favouriteSeries = []         # Creation of list of favourites of class Serie
+
+        self.__fileName = "favoris"         #Creation of a file for pickler
+        if (os.path.exists(self.__fileName)) and (os.path.getsize(self.__fileName) > 0):        #Check if the file exists
             with open(self.__fileName, "rb") as favFile:
                 depickler = pickle.Unpickler(favFile)
                 self.__favouriteSeries = depickler.load()
-                for i in range(len(self.__favouriteSeries)):
+                for i in range(len(self.__favouriteSeries)):        #Loop to add favourites series to favourite QWidgetList and create favouritesIDList
                     favItem = self.__favouriteSeries[i].name
                     self.__favouritesWidget.addItem(favItem)
                     self.__favouritesIDList += [self.__favouriteSeries[i].id]
 
-        #Add research button
-        self.__researchButton = QPushButton("Search")
-        self.__researchButton.setFixedSize(100,40)
-        self.__researchButton.pressed.connect(self.slot_research)
-        self.__UI.horizontalLayout.addWidget(self.__researchButton)
+        #Alert
+        # self.alertWindow = Afficher(self.__favouriteSeries)
+        # self.alertWindow.start()
 
+        # Signal Mapper to connect slot_add_to_favorites to class MainWidget
         self.__sigMapper = QSignalMapper(self)
         self.__sigMapper.mapped.connect(self.slot_add_to_favourites)
 
-        self.__numberSeriesWidgetLines = ceil(n_display/5)
-        self.__positions = [(i+1,j) for i in range(self.__numberSeriesWidgetLines) for j in range(5)]
+
+        # Display series MainWidgets on MainWindow
+        self.__numberSeriesWidgetLines = ceil(n_display/5)      # 5 widgets per line maximum
+        self.__positions = [(i+1,j) for i in range(self.__numberSeriesWidgetLines) for j in range(5)]       # Define positions for the grid layout
         self.__seriesWidgetList = []
-        i=0
-        for i in range(n_display):
+        for i in range(n_display):      #Loop for creation and display of serie MainWidgets
             currentWidget = MainWidget(i, self.__seriesList[i])
             self.__seriesWidgetList += [currentWidget]
             self.__gridLayout.addWidget(currentWidget, *self.__positions[i])
             i+=1
             self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
-            currentWidget.favButton.clicked.connect(self.__sigMapper.map)
+            currentWidget.favButton.clicked.connect(self.__sigMapper.map)       #Connect add to favorite button of MainWidget to signal mapper
 
+    # Getters and setters
     @property
     def seriesList(self):
         return self.__seriesList
@@ -140,13 +164,10 @@ class MyWindow(QMainWindow):
     def seriesList(self,newSeriesList):
         self.__seriesList = newSeriesList
 
-
-        #Fonts
-        # print(QFontDatabase().families())
-        # print(len(QFontDatabase().families()))
-
-    def slot_add_to_favourites(self,id):
-        if (id not in self.__favouritesIDList):
+    # Methods
+    # Slot to add a favourite to the QListWidget
+    def slot_add_to_favourites(self,id): #id = id of the serie to add to favourites
+        if (id not in self.__favouritesIDList):     #Check if the serie is already in the favourite
             self.__favouritesIDList += [id]
             serie = searchSerie(id)
             nm = serie.name
@@ -157,9 +178,13 @@ class MyWindow(QMainWindow):
                 pickler = pickle.Pickler(favFile)
                 pickler.dump(self.__favouriteSeries)
 
-        else:
-            print("Favourite already added.")
+        else:       # If the serie is already in the favourites, displaying an error message
+            # error_dialog = QMessageBox.critical(self,"Error","Favourites already added.",QMessageBox.Close)
+            # error_dialog.setAttributes(QtCore.Qt.WA_DeleteOnClose)
+            # error_dialog.show()
+            print("Favourites already added.")
 
+    # Slot to open window with more information for favourites
     def slot_open_serie_window(self):
         idx = self.__favouritesWidget.currentRow()
         id = self.__favouritesIDList[idx]
@@ -167,17 +192,26 @@ class MyWindow(QMainWindow):
         self.newWindow = NewWindow(ser, self)
         self.newWindow.exec_()
 
+
+    # Slot to do the research
     def slot_research(self):
         self.__searchText = self.__searchWidget.text()
+
+        # Delete all the widgets displayed in scroll area
         for i in reversed(range(self.__gridLayout.count())):
             self.__gridLayout.itemAt(i).widget().setParent(None)
+
+        # Research on the API
         searchSeries(self.__searchText, self.__seriesList)
+
+        # Add results of the research to the scroll area
         for i in range(len(self.__seriesList)):
             currentWidget = MainWidget(i, self.__seriesList[i])
             self.__gridLayout.addWidget(currentWidget, *self.__positions[i])
             self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
             currentWidget.favButton.clicked.connect(self.__sigMapper.map)
 
+    # Slot to remove a serie from the favourites QListWidget
     def slot_remove_favourite(self):
         idx = self.__favouritesWidget.currentRow()
         del self.__favouriteSeries[idx]
