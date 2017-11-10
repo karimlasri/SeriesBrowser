@@ -6,11 +6,13 @@ base_URL =  "http://api.tvmaze.com/"
 C1 = "search/shows?q=" #Classic Search
 C8 = "shows/" #Show episodes list (search by ID)
 
-def searchSeries(search_term, series_list):
+
+
+def searchSeries(search_term): # search_term = input for the research, series_list = result list to be modified
     req = Request(base_URL+C1+search_term, headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
-    del series_list[:]
+    series_list = []
     for e in data:
         name = e["show"]["name"]
         idnum = e["show"]["id"]
@@ -27,8 +29,9 @@ def searchSeries(search_term, series_list):
             image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
         serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
         series_list += [serie]
+    return series_list
 
-def searchEpisodes(id, episodes_list):
+def searchEpisodes(id, episodes_list):      # id = id of the serie, episodes_list = result list to be modified
     req = Request(base_URL+C8+str(id)+"/episodes", headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
@@ -50,7 +53,8 @@ def searchEpisodes(id, episodes_list):
         episode = Episode(idnum, name, seas, nb, airdt, airtm, image, summary)
         episodes_list += [episode]
 
-def searchSerie(id):
+
+def searchSerie(id):        # id = id of the serie. This functions retrieves all information about a serie from the id and returns an object from class Serie
     req = Request(base_URL + C8 + str(id), headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())

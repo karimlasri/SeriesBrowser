@@ -8,7 +8,10 @@ Created on Tue Oct 17 15:19:52 2017
 from Search import searchSeries
 import time
 import urllib
+import string
+import random
 from mainwindow import *
+
 
 #URLs disponibles
 
@@ -28,21 +31,16 @@ C12 = "seasons/1/episodes" #Season episodes
 C13 = "shows/1/cast" #Show cast
 C14 = "shows/1/crew" #Show crew
 
-seriesList = []
-#SEARCH
-search_terms = "black"
-searchSeries(search_terms, seriesList)
-seriesList += seriesList
 
-#Fonts
-# seriesList += seriesList
-# seriesList += seriesList
-# seriesList += seriesList
+def randomSearch():
+    seriesList = []
+    seriesList += searchSeries(random.choice(string.ascii_lowercase))
+    seriesList += searchSeries(random.choice(string.ascii_lowercase))
+    return seriesList
 
-#Reaching 40 results
-seriesList += seriesList
+
 if __name__ == '__main__':
-
     app = QApplication(sys.argv)
-    ex = MyWindow(20, seriesList, "HomePage")
+    ex = MyWindow(20, randomSearch(), "HomePage")
     sys.exit(app.exec_())
+

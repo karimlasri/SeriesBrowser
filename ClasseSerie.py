@@ -37,8 +37,8 @@ class Episode:
     def __init__(self, idnum, nam, seas, nb, airdt, airtm, img, summ):
         self.__id = idnum
         self.__name = nam
-        self.season = seas
-        self.number = nb
+        self.__season = seas
+        self.__number = nb
         self.__airdate = airdt
         self.__airtime = airtm
         self.__image = img
@@ -51,6 +51,14 @@ class Episode:
     @property
     def name(self):
         return self.__name
+
+    @property
+    def season(self):
+        return self.__season
+
+    @property
+    def number(self):
+        return self.__number
 
     @property
     def airdate(self):

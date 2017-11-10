@@ -33,13 +33,13 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__nDisplay = n_display
         self.__seriesList = series_list
 
-        #Load .ui designed on Qt
+        # Load .ui designed on Qt
         self.__UI = uic.loadUi('main.ui', self)
 
-        #Show window on desktop
+        # Show window on desktop
         self.showMaximized()
 
-        #Name of the window
+        # Name of the window
         self.__textLabel = QLabel(nameWindow)
         self.__textLabel.setText(nameWindow)
         self.__textLabel.setTextFormat(QtCore.Qt.RichText)
@@ -85,20 +85,30 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
         #  Add research bar
         self.__searchWidget = QLineEdit()
-        self.__searchWidget.setMaximumSize(100,100)
+        self.__searchWidget.setFixedSize(150,40)
         self.__searchWidget.returnPressed.connect(self.slot_research)       # Connect the signal return pressed to slot_research
         self.__UI.horizontalLayout.addWidget(self.__searchWidget)       # Insert research bar in layout from .ui
+
         #  Add research button
         self.__researchButton = QPushButton("Search")
         self.__researchButton.setFixedSize(100, 40)
         self.__researchButton.pressed.connect(self.slot_research)       # Connect the signal pressed to slot_research
-        self.__UI.horizontalLayout.addWidget(self.__researchButton)     # Insert research button in layout from .ui
+        self.__UI.horizontalLayout.addWidget(self.__researchButton)     # Insert research button in layout from .ui  # Add favourites title
+
+        # Favourites
+        # Layout
+        self.__favLayout = QVBoxLayout()
+        self.__UI.horizontalLayout_2.addLayout(self.__favLayout)
+
+        # Title
+        self.__favouritesTitle = QLabel("Favourites")
+        self.__favouritesTitle.setText(
+            "<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
+        self.__favLayout.addWidget(self.__favouritesTitle)
 
         #  Add favourites list with a QListWidget
         self.__favouritesWidget = QListWidget()
-        self.__favouritesWidget.setMaximumWidth(220)
-        self.__favLayout = QVBoxLayout()
-        self.__UI.horizontalLayout_2.addLayout(self.__favLayout)
+        self.__favouritesWidget.setMaximumWidth(250)
         self.__favLayout.addWidget(self.__favouritesWidget)
         self.__favButtonsLayout = QHBoxLayout()
         self.__favLayout.addLayout(self.__favButtonsLayout)
@@ -113,18 +123,11 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__favButtonsLayout.addWidget(self.__removeFavButton)
         self.__removeFavButton.clicked.connect(self.slot_remove_favourite)      # Connect clicked signal to Remove button to slot_remove_favourites
 
-
-        #  Add favourites title
-        self.__favouritesTitle = QLabel("Favourites")
-        self.__favouritesTitle.setText(
-            "<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
-        self.__favLayout.addWidget(self.__favouritesTitle)
-
         #Create and load favourites list
         self.__favouritesIDList = []        # Creation of a ID list of favourites
         self.__favouriteSeries = []         # Creation of list of favourites of class Serie
 
-        self.__fileName = "favoris"         #Creation of a file for pickler
+        self.__fileName = "favourites"         #Creation of a file for pickler
         if (os.path.exists(self.__fileName)) and (os.path.getsize(self.__fileName) > 0):        #Check if the file exists
             with open(self.__fileName, "rb") as favFile:
                 depickler = pickle.Unpickler(favFile)
@@ -135,10 +138,10 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
                     self.__favouritesIDList += [self.__favouriteSeries[i].id]
 
         #Alert
-        # self.alertWindow = Afficher(self.__favouriteSeries)
+        # self.alertWindow = Afficher(self.__favouriteSeries,self)
         # self.alertWindow.start()
 
-        # Signal Mapper to connect slot_add_to_favorites to class MainWidget
+        # Signal Mapper to connect slot_add_to_favourites to class MainWidget
         self.__sigMapper = QSignalMapper(self)
         self.__sigMapper.mapped.connect(self.slot_add_to_favourites)
 
@@ -147,13 +150,13 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__numberSeriesWidgetLines = ceil(n_display/5)      # 5 widgets per line maximum
         self.__positions = [(i+1,j) for i in range(self.__numberSeriesWidgetLines) for j in range(5)]       # Define positions for the grid layout
         self.__seriesWidgetList = []
-        for i in range(n_display):      #Loop for creation and display of serie MainWidgets
+        for i in range(len(self.__seriesList)):      #Loop for creation and display of serie MainWidgets
             currentWidget = MainWidget(i, self.__seriesList[i])
             self.__seriesWidgetList += [currentWidget]
             self.__gridLayout.addWidget(currentWidget, *self.__positions[i])
             i+=1
             self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
-            currentWidget.favButton.clicked.connect(self.__sigMapper.map)       #Connect add to favorite button of MainWidget to signal mapper
+            currentWidget.favButton.clicked.connect(self.__sigMapper.map)       #Connect add to favourite button of MainWidget to signal mapper
 
     # Getters and setters
     @property
@@ -179,10 +182,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
                 pickler.dump(self.__favouriteSeries)
 
         else:       # If the serie is already in the favourites, displaying an error message
-            # error_dialog = QMessageBox.critical(self,"Error","Favourites already added.",QMessageBox.Close)
-            # error_dialog.setAttributes(QtCore.Qt.WA_DeleteOnClose)
-            # error_dialog.show()
-            print("Favourites already added.")
+            error_dialog = QMessageBox.information(None,"Error","Favourites already added.",QMessageBox.Cancel)
 
     # Slot to open window with more information for favourites
     def slot_open_serie_window(self):
@@ -202,7 +202,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             self.__gridLayout.itemAt(i).widget().setParent(None)
 
         # Research on the API
-        searchSeries(self.__searchText, self.__seriesList)
+        self.__seriesList = searchSeries(self.__searchText)
 
         # Add results of the research to the scroll area
         for i in range(len(self.__seriesList)):
@@ -222,70 +222,63 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             pickler = pickle.Pickler(favFile)
             pickler.dump(self.__favouriteSeries)
 
+# Class for the main widget
 class MainWidget(QFrame):
-    def __init__(self, id, serie, parent = None):
+    def __init__(self, id, serie, parent = None): # id = id of the widget, serie = serie to be displayed by the widget
         super(MainWidget, self).__init__(parent)
-#        self.UI = uic.loadUi('mainwidget.ui', self)
 
+        # Attributes
+        self.__ser = serie
+        self.__id = serie.id
+
+        # Look
         self.setFrameStyle(1)
         self.setLineWidth(3)
         self.setObjectName("mainWidget")
         self.setStyleSheet("#mainWidget{border: 3px solid white;}")
-
-        #Attributes
-        self.__ser = serie
-        self.__id = serie.id
         
-        #Size
+        # Size
         self.__sizePolicy = QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred)
         self.__QSizePolicy = self.__sizePolicy
         self.setFixedSize(300,400)
 
-        #Layout
+        # Layout
         self.__layout = QVBoxLayout()
         self.setLayout(self.__layout)
 
-        #Text : display serie name
+        # Text : display serie name in a QLabel
         labelString = serie.name
         #Fonts
         #labelString = str(id) + ". " + QFontDatabase().families()[id]
         self.__textLabel = QLabel(labelString)
-#        self.UI.text.setText(serie.name)
-#        self.UI.text.setTextFormat(QtCore.Qt.RichText)
-
         self.__textLabel.setText("<span style=' font-size:16pt; font-weight:600; color:#FFFFFF;'>"+labelString+"</span>")
         #Fonts
         #self.__text.setFont(QFont(QFontDatabase().families()[id], 20))
         self.__textLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.__layout.addWidget(self.__textLabel)
-
 
         
-        #Image : display serie image
-        self.__frame = QFrame()
-        self.__imgLayout = QVBoxLayout(self.__frame)
-
+        #Image : display serie image in a QLabel
         self.__img = QLabel(self)
-        #self.__img.setMinimumSize(100,100)
         self.__img.setScaledContents(True)
         self.pixmap = QPixmap()
         data = urlopen(serie.image).read()
         self.pixmap.loadFromData(data)
         self.__img.setPixmap(self.pixmap)
         self.__img.setAlignment(QtCore.Qt.AlignCenter)
-        self.__imgLayout.addWidget(self.__img)
-        self.__layout.addWidget(self.__frame)
 
-#        spacer1 = QSpacerItem(80,80,QSizePolicy.Maximum,QSizePolicy.Maximum)
-#        self.__layout.addItem(spacer1)
-        self.__layout.addWidget(self.__img)
-        self.__favButton = QPushButton("Add to favorite")
+        # Buttons "Add to favourite" and "More Info"
+        self.__favButton = QPushButton("Add to favourite")
         self.__serieButton = QPushButton("More Info")
-        self.__serieButton.clicked.connect(self.slot_open_new_window)
+        self.__serieButton.clicked.connect(self.slot_open_new_window)       #Connect signal clicked to slot_open_new_window
+
+        # Add to layout
+        self.__layout.addWidget(self.__textLabel)
+        self.__layout.addWidget(self.__img)
         self.__layout.addWidget(self.favButton)
         self.__layout.addWidget(self.__serieButton)
-#        self.setMaximumHeight(200)
 
+
+    # Getters and Setters
     @property
     def favButton(self):
         return self.__favButton
@@ -298,6 +291,7 @@ class MainWidget(QFrame):
     def id(self,newid):
         self.__id = newid
 
-    def slot_open_new_window(self):
+    # Methods and slots
+    def slot_open_new_window(self): # Slot to open description window about a serie
         self.__newWindow = NewWindow(self.__ser, self)
         self.__newWindow.exec_()
