@@ -17,20 +17,16 @@ class Afficher(QThread):
         self.seriesReleased.connect(self.slot_show_forthcoming_series)
 
     def slot_show_forthcoming_series(self):
-        self.text = "boo"
-        print(self.displayList)
+        self.text = ""
         for elt in self.displayList:
-            x = str(1)
-            str = elt[0] + " S" #+ str(elt[1].season) + " E" + str(elt[1].number) + " will be aired on " + elt[1].airdate + "\n"
-            # str = "k"
-            self.text += str
-        # self.messageBox.setText(self.text)
-        self.messageBox = QMessageBox.information(None, "YO", self.text , QMessageBox.Ok)
+            episodeString = elt[0] + " S" + str(elt[1].season) + " E" + str(elt[1].number) + " will be aired on " + elt[1].airdate + " at " + elt[1].airtime + "\n"
+            self.text += episodeString
+        self.messageBox = QMessageBox.information(None, "Some series will be aired soon !", self.text , QMessageBox.Ok)
 
 
     def run(self):
+        self.displayList = []
         self.now = datetime.datetime.now()
-        print(self.displayList)
         for serie in self.favList:
             epList = []
             searchEpisodes(serie.id,epList)
@@ -40,12 +36,8 @@ class Afficher(QThread):
                 day = int(ep.airdate[8:10])
                 timeRelease = datetime.datetime(year,month,day)
                 timeDelta = timeRelease - self.now
-                # print(timeDelta)
-
                 if timeDelta.days < 1 and timeDelta.days >=0:
-                    print("yyoo")
                     self.displayList += [(serie.name,ep)]
-                    print(ep.season)
 
         if self.displayList != []:
             self.seriesReleased.emit()
