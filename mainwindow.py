@@ -138,8 +138,13 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
                     self.__favouritesIDList += [self.__favouriteSeries[i].id]
 
         #Alert
-        # self.alertWindow = Afficher(self.__favouriteSeries,self)
-        # self.alertWindow.start()
+        self.alertWindow = Afficher(self.__favouriteSeries,self)
+        # print("yi")
+        # self.alertWindow.seriesReleased.connect(self.slot_show_forthcoming_series)
+        # print("yo")
+        self.alertWindow.start()
+
+        # self.alertWindow.quit()
 
         # Signal Mapper to connect slot_add_to_favourites to class MainWidget
         self.__sigMapper = QSignalMapper(self)

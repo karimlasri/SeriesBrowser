@@ -1,23 +1,36 @@
 from threading import Thread
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QMessageBox
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal, QObject
 import datetime
 import ClasseSerie
 import mainwindow
 from Search import searchEpisodes
 
-class Afficher(Thread):
+class Afficher(QThread):
+
+    seriesReleased = pyqtSignal()
 
     def __init__(self, favList, parent = None):
-        Thread.__init__(self)
-        # super(Afficher,self).__init__(parent)
+        QThread.__init__(self)
         self.favList = favList
         self.displayList = []
-        self.parent = parent
+        self.seriesReleased.connect(self.slot_show_forthcoming_series)
+
+    def slot_show_forthcoming_series(self):
+        self.text = "boo"
+        print(self.displayList)
+        for elt in self.displayList:
+            x = str(1)
+            str = elt[0] + " S" #+ str(elt[1].season) + " E" + str(elt[1].number) + " will be aired on " + elt[1].airdate + "\n"
+            # str = "k"
+            self.text += str
+        # self.messageBox.setText(self.text)
+        self.messageBox = QMessageBox.information(None, "YO", self.text , QMessageBox.Ok)
+
 
     def run(self):
-        now = datetime.datetime.now()
-
+        self.now = datetime.datetime.now()
+        print(self.displayList)
         for serie in self.favList:
             epList = []
             searchEpisodes(serie.id,epList)
@@ -25,41 +38,14 @@ class Afficher(Thread):
                 year = int(ep.airdate[:4])
                 month = int(ep.airdate[5:7])
                 day = int(ep.airdate[8:10])
-                hour = int(ep.airtime[:2])
+                timeRelease = datetime.datetime(year,month,day)
+                timeDelta = timeRelease - self.now
+                # print(timeDelta)
 
-                timeRelease = datetime.datetime(year,month,day,hour)
-
-                timeDelta = timeRelease - now
-#                print(timeDelta)
-
-                if timeDelta.days < 2 and timeDelta.days >=0:
-                    print("yo")
+                if timeDelta.days < 1 and timeDelta.days >=0:
+                    print("yyoo")
                     self.displayList += [(serie.name,ep)]
-                
-        self.alertWindow = QMessageBox.information(self.parent,"YO","YO",QMessageBox.Ok)
-        # self.alertWindow.textWidget.setText("Il y a {0} episodes qui vont sortir demain".format(str(len(self.displayList))))
-        # print("Il y a {0} episodes qui vont sortir demain".format(str(len(self.displayList))))
+                    print(ep.season)
 
-        # for elt in self.displayList:
-        #     self.alertWindow.textWidget.setText(self.alertWindow.textWidget.text() + "\n The episod {0} of season {1} of {2}".format(str(elt[1].number),str(elt[1].season),elt[0]))
-
-        # self.alertWindow.exec_()
-        
-# class AlertWindow(QDialog):
-#
-#     def __init__(self,parent = None):
-#         super(AlertWindow,self).__init__(parent)
-#         self.vLayout = QVBoxLayout(self)
-#         self.textWidget = QLabel()
-#         self.vLayout.addWidget(self.textWidget)
-        
-
-                    
-
-
-
-
-
-
-
-
+        if self.displayList != []:
+            self.seriesReleased.emit()
