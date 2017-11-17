@@ -146,12 +146,12 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         #Alert
         self.alertWindow = Afficher(self.__favouriteSeries,self)
         self.alertWindow.start()
-
         # self.alertWindow.quit()
 
         # Signal Mapper to connect slot_add_to_favourites to class MainWidget
         self.__sigMapper = QSignalMapper(self)
         self.__sigMapper.mapped.connect(self.slot_add_to_favourites)
+        #self.__sigMapper.mapped.connect(self.alertWindow.slot_add_fav_and_display)
 
 
         # Display series MainWidgets on MainWindow
@@ -180,10 +180,14 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
     def slot_add_to_favourites(self,id): #id = id of the serie to add to favourites
         if (id not in self.__favouritesIDList):     #Check if the serie is already in the favourite
             self.__favouritesIDList += [id]
+            print("favouritesIDListlength : " + str(len(self.__favouritesIDList)))
             serie = searchSerie(id)
             nm = serie.name
             self.__favouriteSeries += [serie]
             self.__favouritesWidget.addItem(nm)
+            #self.alertWindow.favList += [serie]
+            self.alertWindow.quit()
+            self.alertWindow = Afficher(self.__favouriteSeries, self)
 
             with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
@@ -258,6 +262,8 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         del self.__favouriteSeries[idx]
         del self.__favouritesIDList[idx]
         self.__favouritesWidget.takeItem(idx)
+        self.alertWindow.quit()
+        self.alertWindow = Afficher(self.__favouriteSeries,self)
 
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
