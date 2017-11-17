@@ -34,9 +34,12 @@ class Afficher(QThread):
                 year = int(ep.airdate[:4])
                 month = int(ep.airdate[5:7])
                 day = int(ep.airdate[8:10])
-                timeRelease = datetime.datetime(year,month,day)
+                hour = int(ep.airtime[0:2])
+                min = int(ep.airtime[3:4])
+                timeRelease = datetime.datetime(year,month,day,hour,min)
                 timeDelta = timeRelease - self.now
-                if timeDelta.days < 1 and timeDelta.days >=0:
+                print(timeDelta)
+                if timeDelta.days < 2 and timeDelta.days >=0 and timeDelta.seconds >= 0:
                     self.displayList += [(serie.name,ep)]
 
         if self.displayList != []:

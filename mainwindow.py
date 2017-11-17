@@ -16,8 +16,9 @@ from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
 import ClasseSerie
-from Search import searchSeries, searchSerie
+from Search import searchSeries, searchSerie, findForthcomingSerie
 import os
+import datetime
 from newwindow import *
 import pickle
 from alert import Afficher
@@ -123,6 +124,11 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__favButtonsLayout.addWidget(self.__removeFavButton)
         self.__removeFavButton.clicked.connect(self.slot_remove_favourite)      # Connect clicked signal to Remove button to slot_remove_favourites
 
+        #  Magic Button
+        self.__magicButton = QPushButton("MAGIC BUTTON")
+        self.__magicButton.clicked.connect(self.slot_magic_add_to_favourites)
+        self.__favLayout.addWidget(self.__magicButton)
+
         #Create and load favourites list
         self.__favouritesIDList = []        # Creation of a ID list of favourites
         self.__favouriteSeries = []         # Creation of list of favourites of class Serie
@@ -139,9 +145,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
         #Alert
         self.alertWindow = Afficher(self.__favouriteSeries,self)
-        # print("yi")
-        # self.alertWindow.seriesReleased.connect(self.slot_show_forthcoming_series)
-        # print("yo")
         self.alertWindow.start()
 
         # self.alertWindow.quit()
@@ -188,6 +191,39 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
         else:       # If the serie is already in the favourites, displaying an error message
             error_dialog = QMessageBox.information(None,"Error","Favourites already added.",QMessageBox.Cancel)
+
+    def slot_magic_add_to_favourites(self):
+        now = datetime.datetime.now()
+        data = findForthcomingSerie()
+        m = False
+        i = 0
+        while m != True:
+            id_serie = data[i]["show"]["id"]
+            year = int(data[i]["airdate"][:4])
+            month = int(data[i]["airdate"][5:7])
+            day = int(data[i]["airdate"][8:10])
+            hour = int(data[i]["airtime"][0:2])
+            print(hour)
+            timeRelease = datetime.datetime(year, month, day, hour)
+            print(timeRelease)
+            print(now)
+            timeDelta = timeRelease - now
+            print(timeDelta)
+            if timeDelta.days >= 0 and timeDelta.seconds >= 0 and id_serie not in self.__favouritesIDList:
+                serie = searchSerie(id_serie)
+                m = True
+            else:
+                i = i + 1
+                print(i)
+        id = serie.id
+        self.__favouritesIDList += [id]
+        nm = serie.name
+        self.__favouriteSeries += [serie]
+        self.__favouritesWidget.addItem(nm)
+
+        with open(self.__fileName, "wb") as favFile:
+            pickler = pickle.Pickler(favFile)
+            pickler.dump(self.__favouriteSeries)
 
     # Slot to open window with more information for favourites
     def slot_open_serie_window(self):

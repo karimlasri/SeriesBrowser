@@ -1,9 +1,12 @@
 from urllib.request import Request, urlopen
 import json
+from random import randint
+import datetime
 from ClasseSerie import *
 
 base_URL =  "http://api.tvmaze.com/"
 C1 = "search/shows?q=" #Classic Search
+C5 = "schedule?country=US" #Schedule search
 C8 = "shows/" #Show episodes list (search by ID)
 
 
@@ -72,3 +75,13 @@ def searchSerie(id):        # id = id of the serie. This functions retrieves all
         image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
     serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
     return(serie)
+
+def findForthcomingSerie():
+    now = datetime.datetime.now()
+    req = Request(base_URL + C5, headers={'User-Agent': 'Mozilla/5.0'})
+    webpage = urlopen(req).read()
+    data = json.loads(webpage.decode())
+    print(data)
+    return data
+
+findForthcomingSerie()
