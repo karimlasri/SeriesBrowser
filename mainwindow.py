@@ -9,7 +9,7 @@ Created on Thu Oct  5 14:58:00 2017
 
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QSpacerItem, QSizePolicy, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QSpacerItem, QSizePolicy, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout, QMessageBox, QCheckBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QSize, pyqtSignal, QSignalMapper
 from PyQt5 import QtCore
@@ -129,6 +129,13 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__magicButton.clicked.connect(self.slot_magic_add_to_favourites)
         self.__favLayout.addWidget(self.__magicButton)
 
+        # Notifications checkbox
+        self.__enableNotifications = QCheckBox()
+        self.__enableNotifications.setText("Enable Notifications")
+        self.__enableNotifications.setChecked(True)
+        self.__enableNotifications.stateChanged.connect(self.slot_change_notifications_state)
+        self.__favLayout.addWidget(self.__enableNotifications)
+
         #Create and load favourites list
         self.__favouritesIDList = []        # Creation of a ID list of favourites
         self.__favouriteSeries = []         # Creation of list of favourites of class Serie
@@ -144,15 +151,14 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
                     self.__favouritesIDList += [self.__favouriteSeries[i].id]
 
         #Alert
-        self.alertWindow = Afficher(self.__favouriteSeries,self)
+        self.__alertWindow = Afficher(self.__favouriteSeries,self)
         # self.alertWindow.seriesReleased.connect(self.slot_show_forthcoming_series)
-        self.alertWindow.start()
+        self.__alertWindow.start()
         # self.alertWindow.quit()
 
         # Signal Mapper to connect slot_add_to_favourites to class MainWidget
         self.__sigMapper = QSignalMapper(self)
         self.__sigMapper.mapped.connect(self.slot_add_to_favourites)
-        #self.__sigMapper.mapped.connect(self.alertWindow.slot_add_fav_and_display)
 
 
         # Display series MainWidgets on MainWindow
@@ -181,15 +187,13 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
     def slot_add_to_favourites(self,id): #id = id of the serie to add to favourites
         if (id not in self.__favouritesIDList):     #Check if the serie is already in the favourite
             self.__favouritesIDList += [id]
-            print("favouritesIDListlength : " + str(len(self.__favouritesIDList)))
             serie = searchSerie(id)
             nm = serie.name
             self.__favouriteSeries += [serie]
             self.__favouritesWidget.addItem(nm)
-            #self.alertWindow.favList += [serie]
-            self.alertWindow.quit()
-            self.alertWindow = Afficher(self.__favouriteSeries, self)
-
+            self.__alertWindow.terminate()
+            self.__alertWindow = Afficher(self.__favouriteSeries, self)
+            self.__alertWindow.start()
             with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
                 pickler.dump(self.__favouriteSeries)
@@ -199,23 +203,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
     def slot_magic_add_to_favourites(self):
         now = datetime.datetime.now()
-        data = findForthcomingSerie()
-        found = False
-        i = 0
-        while found != True:
-            id_serie = data[i]["show"]["id"]
-            year = int(data[i]["airdate"][:4])
-            month = int(data[i]["airdate"][5:7])
-            day = int(data[i]["airdate"][8:10])
-            hour = int(data[i]["airtime"][0:2])
-            min = int(data[i]["airtime"][3:4])
-            timeRelease = datetime.datetime(year, month, day, hour, min)
-            timeDelta = timeRelease - now
-            if timeDelta.days >= 0 and timeDelta.seconds >= 0 and id_serie not in self.__favouritesIDList:
-                serie = searchSerie(id_serie)
-                found = True
-            else:
-                i = i + 1
+        serie = findForthcomingSerie(self.__favouritesIDList)
         id = serie.id
         self.__favouritesIDList += [id]
         nm = serie.name
@@ -260,12 +248,23 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         del self.__favouriteSeries[idx]
         del self.__favouritesIDList[idx]
         self.__favouritesWidget.takeItem(idx)
-        self.alertWindow.quit()
+        self.alertWindow.terminate()
         self.alertWindow = Afficher(self.__favouriteSeries,self)
+        self.__alertWindow.start()
 
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
             pickler.dump(self.__favouriteSeries)
+
+    def slot_change_notifications_state(self):
+        if (self.__alertWindow.notificationsEnabled):
+            self.__alertWindow.notificationsEnabled = False
+            self.__alertWindow.terminate()
+            print("set to false")
+        else:
+            self.__alertWindow.notificationsEnabled = True
+            self.__alertWindow = Afficher(self.__favouriteSeries, self)
+            self.__alertWindow.start()
 
 # Class for the main widget
 class MainWidget(QFrame):

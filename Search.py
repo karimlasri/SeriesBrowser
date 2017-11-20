@@ -9,8 +9,6 @@ C1 = "search/shows?q=" #Classic Search
 C5 = "schedule?country=US" #Schedule search
 C8 = "shows/" #Show episodes list (search by ID)
 
-
-
 def searchSeries(search_term): # search_term = input for the research, series_list = result list to be modified
     req = Request(base_URL+C1+search_term, headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
@@ -76,9 +74,28 @@ def searchSerie(id):        # id = id of the serie. This functions retrieves all
     serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
     return(serie)
 
-def findForthcomingSerie():
-    #now = datetime.datetime.now()
+#Finds a serie that's going to be aired soon and is not in IDList
+def findForthcomingSerie(IDList):
+    now = datetime.datetime.now()
     req = Request(base_URL + C5, headers={'User-Agent': 'Mozilla/5.0'})
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
-    return data
+    found = False
+    i = 0
+    while (found != True) and (i < len(data)):
+        id_serie = data[i]["show"]["id"]
+        year = int(data[i]["airdate"][:4])
+        month = int(data[i]["airdate"][5:7])
+        day = int(data[i]["airdate"][8:10])
+        hour = int(data[i]["airtime"][0:2])
+        min = int(data[i]["airtime"][3:4])
+        timeRelease = datetime.datetime(year, month, day, hour, min)
+        timeDelta = timeRelease - now
+        if timeDelta.days >= 0 and timeDelta.seconds >= 0 and id_serie not in IDList:
+            serie = searchSerie(id_serie)
+            found = True
+        else:
+            i = i + 1
+    # if i == len(data): lever une exception
+    #    raiseError
+    return serie

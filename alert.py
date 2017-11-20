@@ -8,13 +8,15 @@ from Search import searchEpisodes, searchSerie
 
 class Afficher(QThread):
 
-    seriesReleased = pyqtSignal()
+    # On pyqt, signals can't be defined in init function and should be initialized before
+    __seriesReleased = pyqtSignal()
 
     def __init__(self, favList, parent = None):
         QThread.__init__(self)
-        self.__favList = favList
-        self.displayList = []
-        self.seriesReleased.connect(self.slot_show_forthcoming_series)
+        self.__favList = favList # Complete list of user's favourites
+        self.__displayList = [] # List of episodes that will be aired soon
+        self.__seriesReleased.connect(self.slot_show_forthcoming_series) # Connecting signal to function that displays forthcoming series
+        self.__notificationsEnabled = True # Bool that indicates whether notifications are enabled or not
 
     @property
     def favList(self):
@@ -24,24 +26,33 @@ class Afficher(QThread):
     def favList(self, newFavList):
         self.__favList = newFavList
 
+    @property
+    def notificationsEnabled(self):
+        return self.__notificationsEnabled
+
+    @notificationsEnabled.setter
+    def notificationsEnabled(self, newValue):
+        if (type(newValue == bool)):
+            self.__notificationsEnabled = newValue
+        #else raiseError
+
+    # Function that displays forthcoming series in a message box
     def slot_show_forthcoming_series(self):
         self.text = ""
-        print(len(self.displayList))
-        for elt in self.displayList:
+        for elt in self.__displayList:
             episodeString = elt[0] + " S" + str(elt[1].season) + " E" + str(elt[1].number) + " will be aired on " + elt[1].airdate + " at " + elt[1].airtime + "\n"
             self.text += episodeString
         self.messageBox = QMessageBox.information(None, "Some series will be aired soon !", self.text , QMessageBox.Ok)
 
-    def slot_add_fav_and_display(self,id):
-        ser = searchSerie(id)
-        if (ser not in self.__favList):
-            self.__favList += [ser]
+    def run(self):
+        while (self.__notificationsEnabled):
             self.display_forthcoming_episodes()
+            QThread.sleep(10)
 
+    # Function that refreshes the list of forthcoming episodes and displays them by emitting a signal connected to the right slot
     def display_forthcoming_episodes(self):
-        self.displayList = []
+        self.__displayList = []
         self.now = datetime.datetime.now()
-        print("favlist length : " + str(len(self.favList)))
         for serie in self.favList:
             epList = []
             searchEpisodes(serie.id,epList)
@@ -53,12 +64,7 @@ class Afficher(QThread):
                 min = int(ep.airtime[3:4])
                 timeRelease = datetime.datetime(year,month,day,hour,min)
                 timeDelta = timeRelease - self.now
-                if timeDelta.days < 2 and timeDelta.days >= 0 and timeDelta.seconds >= 0:
-                    self.displayList += [(serie.name,ep)]
-        if self.displayList != []:
-            self.seriesReleased.emit()
-
-    def run(self):
-        while (True):
-            self.display_forthcoming_episodes()
-            QThread.sleep(20)
+                if (timeDelta.days < 2) and (timeDelta.days >= 0) and (timeDelta.seconds >= 0): # Tests whether the episode is aired within two days
+                    self.__displayList += [(serie.name,ep)]
+        if self.__displayList != []:
+            self.__seriesReleased.emit()

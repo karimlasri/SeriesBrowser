@@ -35,7 +35,7 @@ class NewWindow(QDialog):
         self.__episodesList = []
         searchEpisodes(self.__serie.id, self.__episodesList)
         for i in range(len(self.__episodesList)):
-            name = "S"+str(self.__episodesList[i].season)+"E"+str(self.__episodesList[i].number)+" "+self.__episodesList[i].name
+            name = "S"+str(self.__episodesList[i].season)+"E"+str(self.__episodesList[i].number)+" - "+self.__episodesList[i].name
             self.__epList.addItem(name)
 
         # Connecting signal itemClicked in QListWidget to display episodes summaries
