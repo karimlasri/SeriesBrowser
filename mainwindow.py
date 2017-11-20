@@ -247,20 +247,24 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
             currentWidget.favButton.clicked.connect(self.__sigMapper.map)
 
-    # Slot to remove a serie from the favourites QListWidget
+    # Slot to remove a serie from user's favourites list
     def slot_remove_favourite(self):
-        idx = self.__favouritesWidget.currentRow()
-        del self.__favouriteSeries[idx]
-        del self.__favouritesIDList[idx]
-        self.__favouritesWidget.takeItem(idx)
-        self.__alertWindow.quit()
-        self.__alertWindow = Afficher(self.__favouriteSeries,self)
-        self.__alertWindow.start()
-        with open(self.__fileName, "wb") as favFile:
-            pickler = pickle.Pickler(favFile)
-            pickler.dump(self.__favouriteSeries)
-            print(str(idx))
+        idx = self.__favouritesWidget.currentRow() # The index of the selected row
+        if (idx == -1): # Exception if the user didn't select a favourite before clicking "remove favourite" button
+            QMessageBox.information(None, "Error", "You didn't select a favourite.", QMessageBox.Ok)
+        else:
+            del self.__favouriteSeries[idx] # The favourites widget list and the inner user's favourites list are sorted in the same order
+            del self.__favouritesIDList[idx]
+            self.__favouritesWidget.takeItem(idx)
+            self.__alertWindow.quit()
+            self.__alertWindow = Afficher(self.__favouriteSeries,self)
+            self.__alertWindow.start()
+            with open(self.__fileName, "wb") as favFile:
+                pickler = pickle.Pickler(favFile)
+                pickler.dump(self.__favouriteSeries)
+                print(str(idx))
 
+    # Slot that clears user's favourites list
     def slot_clear_favourites(self):
         self.__favouriteSeries = []
         self.__favouritesIDList = []
