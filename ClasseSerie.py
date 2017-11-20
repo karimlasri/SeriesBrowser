@@ -41,6 +41,8 @@ class Episode:
         self.__number = nb
         self.__airdate = airdt
         self.__airtime = airtm
+        if (airtm == ""):
+            self.__airtime = "00:00"
         self.__image = img
         self.__summary = summ
 
