@@ -200,26 +200,22 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
     def slot_magic_add_to_favourites(self):
         now = datetime.datetime.now()
         data = findForthcomingSerie()
-        m = False
+        found = False
         i = 0
-        while m != True:
+        while found != True:
             id_serie = data[i]["show"]["id"]
             year = int(data[i]["airdate"][:4])
             month = int(data[i]["airdate"][5:7])
             day = int(data[i]["airdate"][8:10])
             hour = int(data[i]["airtime"][0:2])
-            print(hour)
-            timeRelease = datetime.datetime(year, month, day, hour)
-            print(timeRelease)
-            print(now)
+            min = int(data[i]["airtime"][3:4])
+            timeRelease = datetime.datetime(year, month, day, hour, min)
             timeDelta = timeRelease - now
-            print(timeDelta)
             if timeDelta.days >= 0 and timeDelta.seconds >= 0 and id_serie not in self.__favouritesIDList:
                 serie = searchSerie(id_serie)
-                m = True
+                found = True
             else:
                 i = i + 1
-                print(i)
         id = serie.id
         self.__favouritesIDList += [id]
         nm = serie.name
