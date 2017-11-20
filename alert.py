@@ -38,22 +38,22 @@ class Afficher(QThread):
 
     # Function that displays forthcoming series in a message box
     def slot_show_forthcoming_series(self):
-        self.text = ""
+        self.__text = ""
         for elt in self.__displayList:
             episodeString = elt[0] + " S" + str(elt[1].season) + " E" + str(elt[1].number) + " will be aired on " + elt[1].airdate + " at " + elt[1].airtime + "\n"
-            self.text += episodeString
-        self.messageBox = QMessageBox.information(None, "Some series will be aired soon !", self.text , QMessageBox.Ok)
+            self.__text += episodeString
+        QMessageBox.information(None, "Some series will be aired soon !", self.__text , QMessageBox.Ok)
 
     def run(self):
         while (self.__notificationsEnabled):
             self.display_forthcoming_episodes()
-            QThread.sleep(10)
+            QThread.sleep(120)
 
     # Function that refreshes the list of forthcoming episodes and displays them by emitting a signal connected to the right slot
     def display_forthcoming_episodes(self):
         self.__displayList = []
-        self.now = datetime.datetime.now()
-        for serie in self.favList:
+        self.__now = datetime.datetime.now()
+        for serie in self.__favList:
             epList = []
             searchEpisodes(serie.id,epList)
             for ep in epList:
@@ -63,7 +63,7 @@ class Afficher(QThread):
                 hour = int(ep.airtime[0:2])
                 min = int(ep.airtime[3:4])
                 timeRelease = datetime.datetime(year,month,day,hour,min)
-                timeDelta = timeRelease - self.now
+                timeDelta = timeRelease - self.__now
                 if (timeDelta.days < 2) and (timeDelta.days >= 0) and (timeDelta.seconds >= 0): # Tests whether the episode is aired within two days
                     self.__displayList += [(serie.name,ep)]
         if self.__displayList != []:

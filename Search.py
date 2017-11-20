@@ -1,13 +1,33 @@
 from urllib.request import Request, urlopen
 import json
 from ClasseSerie import *
-from random import randint
+import string
+import random
 import datetime
 
 base_URL =  "http://api.tvmaze.com/"
 C1 = "search/shows?q=" #Classic Search
 C5 = "schedule?country=US" #Schedule search
 C8 = "shows/" #Show episodes list (search by ID)
+
+
+# #URLs disponibles
+#
+# base_URL =  "http://api.tvmaze.com/"
+# C1 = "search/shows?q=" #Classic Search
+# C2 = "singlesearch/shows?q=girls" #Another type of search (less interesting in our case)
+# C3 = "lookup/shows?tvrage=24493" #Search by tvrage
+# C4 = "search/people?q=lauren" #People search
+# C5 = "schedule?country=US&date=2014-12-01" #Schedule search
+# C6 = "schedule/full" #Full schedule to come
+# C7 = "shows/1?embed=cast" #Show main information (search by ID)
+# C8 = "shows/1/episodes?specials=1" #Show episodes list (search by ID)
+# C9 = "shows/1/episodebynumber?season=1&number=1" #Show episode by number (show by ID)
+# C10 = "shows/1/episodesbydate?date=2013-07-01" #Episodes by date
+# C11 = "shows/1/seasons" #Show seasons
+# C12 = "seasons/1/episodes" #Season episodes
+# C13 = "shows/1/cast" #Show cast
+# C14 = "shows/1/crew" #Show crew
 
 def searchSeries(search_term): # search_term = input for the research, series_list = result list to be modified
     req = Request(base_URL+C1+search_term, headers={'User-Agent': 'Mozilla/5.0'})
@@ -99,3 +119,9 @@ def findForthcomingSerie(IDList):
     # if i == len(data): lever une exception
     #    raiseError
     return serie
+
+def randomSearch():
+    seriesList = []
+    seriesList += searchSeries(random.choice(string.ascii_lowercase))
+    seriesList += searchSeries(random.choice(string.ascii_lowercase))
+    return seriesList

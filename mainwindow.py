@@ -111,23 +111,30 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__favouritesWidget = QListWidget()
         self.__favouritesWidget.setMaximumWidth(250)
         self.__favLayout.addWidget(self.__favouritesWidget)
-        self.__favButtonsLayout = QHBoxLayout()
-        self.__favLayout.addLayout(self.__favButtonsLayout)
+        self.__favButtonsTopLayout = QHBoxLayout()
+        self.__favButtonsBottomLayout = QHBoxLayout()
+        self.__favLayout.addLayout(self.__favButtonsTopLayout)
+        self.__favLayout.addLayout(self.__favButtonsBottomLayout)
 
         #  Add More Info button for favourites list
         self.__favMoreInfoButton = QPushButton("More Info")
-        self.__favButtonsLayout.addWidget(self.__favMoreInfoButton)
+        self.__favButtonsTopLayout.addWidget(self.__favMoreInfoButton)
         self.__favMoreInfoButton.clicked.connect(self.slot_open_serie_window)       # Connect clicked signal of MoreInfo button to slot_open_serie_window
 
         #  Add Remove favourite button for favourites list
         self.__removeFavButton = QPushButton("Remove Favourite")
-        self.__favButtonsLayout.addWidget(self.__removeFavButton)
+        self.__favButtonsTopLayout.addWidget(self.__removeFavButton)
         self.__removeFavButton.clicked.connect(self.slot_remove_favourite)      # Connect clicked signal to Remove button to slot_remove_favourites
 
         # Magic Button : finds a serie that has an episode that is going to be aired soon
         self.__magicButton = QPushButton("MAGIC BUTTON")
         self.__magicButton.clicked.connect(self.slot_magic_add_to_favourites)
-        self.__favLayout.addWidget(self.__magicButton)
+        self.__favButtonsBottomLayout.addWidget(self.__magicButton)
+
+        # Clear Favourites Button
+        self.__clearFavButton = QPushButton("Clear Favourites")
+        self.__favButtonsBottomLayout.addWidget(self.__clearFavButton)
+        self.__clearFavButton.clicked.connect(self.slot_clear_favourites)
 
         # Notifications checkbox
         self.__enableNotifications = QCheckBox()
@@ -246,10 +253,19 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         del self.__favouriteSeries[idx]
         del self.__favouritesIDList[idx]
         self.__favouritesWidget.takeItem(idx)
-        self.alertWindow.terminate()
-        self.alertWindow = Afficher(self.__favouriteSeries,self)
+        self.__alertWindow.quit()
+        self.__alertWindow = Afficher(self.__favouriteSeries,self)
         self.__alertWindow.start()
+        with open(self.__fileName, "wb") as favFile:
+            pickler = pickle.Pickler(favFile)
+            pickler.dump(self.__favouriteSeries)
+            print(str(idx))
 
+    def slot_clear_favourites(self):
+        self.__favouriteSeries = []
+        self.__favouritesIDList = []
+        self.__favouritesWidget.clear()
+        # Clear favourites file
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
             pickler.dump(self.__favouriteSeries)
@@ -257,7 +273,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
     def slot_change_notifications_state(self):
         if (self.__alertWindow.notificationsEnabled):
             self.__alertWindow.notificationsEnabled = False
-            self.__alertWindow.terminate()
+            self.__alertWindow.quit()
             print("set to false")
         else:
             self.__alertWindow.notificationsEnabled = True

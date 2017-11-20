@@ -5,14 +5,15 @@ Created on Tue Oct 17 14:33:35 2017
 @author: Karim
 """
 
+# Class to store series
 class Serie:
     def __init__(self, idnum, nam, lang, genr, prem, rat, img, summ):
-        self.__id = idnum
+        self.__id = idnum # Unique id
         self.__name = nam
-        self.language = lang
-        self.genres = genr
-        self.premiered = prem
-        self.rating = rat
+        # self.language = lang
+        # self.genres = genr
+        # self.premiered = prem
+        # self.rating = rat
         self.__image = img
         self.__summary = summ
 
@@ -32,16 +33,16 @@ class Serie:
     def summary(self):
         return self.__summary
 
-
+# Class to store episodes
 class Episode:
     def __init__(self, idnum, nam, seas, nb, airdt, airtm, img, summ):
-        self.__id = idnum
+        self.__id = idnum # Unique ID
         self.__name = nam
         self.__season = seas
         self.__number = nb
         self.__airdate = airdt
         self.__airtime = airtm
-        if (airtm == ""):
+        if (airtm == ""): # Some episodes don't have an airtime which is used in the notifications system
             self.__airtime = "00:00"
         self.__image = img
         self.__summary = summ
