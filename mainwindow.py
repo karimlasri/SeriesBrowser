@@ -28,7 +28,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
     def __init__(self,n_display, series_list, nameWindow):  #n_display : number of shows to display when prog is launched,
                                                             # series_list = list of series to be displayed and retrieved from the API,
-                                                            # nameWindow = name to be displayed
+                                                            # nameWindow = name to be displayed on top of the indow
 
         super().__init__()
         self.__nDisplay = n_display
@@ -124,7 +124,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__favButtonsLayout.addWidget(self.__removeFavButton)
         self.__removeFavButton.clicked.connect(self.slot_remove_favourite)      # Connect clicked signal to Remove button to slot_remove_favourites
 
-        # Magic Button
+        # Magic Button : finds a serie that has an episode that is going to be aired soon
         self.__magicButton = QPushButton("MAGIC BUTTON")
         self.__magicButton.clicked.connect(self.slot_magic_add_to_favourites)
         self.__favLayout.addWidget(self.__magicButton)
@@ -139,7 +139,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         #Create and load favourites list
         self.__favouritesIDList = []        # Creation of a ID list of favourites
         self.__favouriteSeries = []         # Creation of list of favourites of class Serie
-
         self.__fileName = "favourites"         #Creation of a file for pickler
         if (os.path.exists(self.__fileName)) and (os.path.getsize(self.__fileName) > 0):        #Check if the file exists
             with open(self.__fileName, "rb") as favFile:
@@ -202,7 +201,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
 
     def slot_magic_add_to_favourites(self):
-        now = datetime.datetime.now()
         serie = findForthcomingSerie(self.__favouritesIDList)
         id = serie.id
         self.__favouritesIDList += [id]
@@ -218,10 +216,10 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
     # Slot to open window with more information for favourites
     def slot_open_serie_window(self):
         idx = self.__favouritesWidget.currentRow()
-        id = self.__favouritesIDList[idx]
+        #id = self.__favouritesIDList[idx]
         ser = self.__favouriteSeries[idx]
-        self.newWindow = NewWindow(ser, self)
-        self.newWindow.exec_()
+        self.__newWindow = NewWindow(ser, self)
+        self.__newWindow.exec_()
 
 
     # Slot to do the research
@@ -304,10 +302,10 @@ class MainWidget(QFrame):
         #Image : display serie image in a QLabel
         self.__img = QLabel(self)
         self.__img.setScaledContents(True)
-        self.pixmap = QPixmap()
+        self.__pixmap = QPixmap()
         data = urlopen(serie.image).read()
-        self.pixmap.loadFromData(data)
-        self.__img.setPixmap(self.pixmap)
+        self.__pixmap.loadFromData(data)
+        self.__img.setPixmap(self.__pixmap)
         self.__img.setAlignment(QtCore.Qt.AlignCenter)
 
         # Buttons "Add to favourite" and "More Info"

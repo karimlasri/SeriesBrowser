@@ -13,7 +13,6 @@ class NewWindow(QDialog):
         self.setLayout(self.__vLayout)
         self.__hLayout = QHBoxLayout()      # Secondary layout
 
-
         # Name of the serie
         self.__textWidget = QLabel(self.__serie.name)
         self.__vLayout.addWidget(self.__textWidget)
@@ -41,9 +40,7 @@ class NewWindow(QDialog):
         # Connecting signal itemClicked in QListWidget to display episodes summaries
         self.__epList.itemClicked.connect(self.slot_episode_summary)
 
-
     # Methods and slots
-
     def slot_episode_summary(self): # slot to display episode summary
         idx = self.__epList.currentRow()
         ep = self.__episodesList[idx]
