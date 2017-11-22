@@ -39,9 +39,10 @@ class Afficher(QThread):
     # Function that displays forthcoming series in a message box
     def slot_show_forthcoming_series(self):
         self.__text = ""
-        for elt in self.__displayList:
+        for elt in self.__displayList: # Iterating on soon-to-be-displayed episodes to add text to the message box
             episodeString = elt[0] + " S" + str(elt[1].season) + " E" + str(elt[1].number) + " will be aired on " + elt[1].airdate + " at " + elt[1].airtime + "\n"
             self.__text += episodeString
+        # Displaying the message box
         QMessageBox.information(None, "Some series will be aired soon !", self.__text , QMessageBox.Ok)
 
     def run(self):
@@ -54,8 +55,7 @@ class Afficher(QThread):
         self.__displayList = []
         self.__now = datetime.datetime.now()
         for serie in self.__favList:
-            epList = []
-            searchEpisodes(serie.id,epList)
+            epList = searchEpisodes(serie.id)
             for ep in epList:
                 year = int(ep.airdate[:4])
                 month = int(ep.airdate[5:7])
@@ -64,6 +64,7 @@ class Afficher(QThread):
                 min = int(ep.airtime[3:4])
                 timeRelease = datetime.datetime(year,month,day,hour,min)
                 timeDelta = timeRelease - self.__now
+                # print(timeDelta)
                 if (timeDelta.days < 2) and (timeDelta.days >= 0) and (timeDelta.seconds >= 0): # Tests whether the episode is aired within two days
                     self.__displayList += [(serie.name,ep)]
         if self.__displayList != []:

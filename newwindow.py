@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QListWidg
 from ClasseSerie import *
 from Search import searchEpisodes
 
-# Class NewWindow is QDialog displaying informations about the serie : summary, list of episods and summaries of episods
+# Class NewWindow is a QDialog displaying informations about the serie : summary, list of episods and summaries of episods
 class NewWindow(QDialog):
     def __init__(self, ser, parent = None):
         super(NewWindow,self).__init__(parent)
@@ -31,8 +31,7 @@ class NewWindow(QDialog):
         self.__hLayout.addWidget(self.__epSum)
 
         # Retrieving list of episodes from API
-        self.__episodesList = []
-        searchEpisodes(self.__serie.id, self.__episodesList)
+        self.__episodesList = searchEpisodes(self.__serie.id)
         for i in range(len(self.__episodesList)):
             name = "S"+str(self.__episodesList[i].season)+"E"+str(self.__episodesList[i].number)+" - "+self.__episodesList[i].name
             self.__epList.addItem(name)

@@ -41,6 +41,11 @@ class Episode:
         self.__season = seas
         self.__number = nb
         self.__airdate = airdt
+        try:
+            if (airdt == ""):
+                raise ValueError("The airdate shouldn't be empty.")
+        except ValueError:
+            self.__airdate = "2000-01-01"
         self.__airtime = airtm
         if (airtm == ""): # Some episodes don't have an airtime which is used in the notifications system
             self.__airtime = "00:00"

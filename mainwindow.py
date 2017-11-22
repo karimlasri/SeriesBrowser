@@ -26,13 +26,13 @@ from alert import Afficher
 class MyWindow(QMainWindow): #Main window of the Serie Browser
 
 
-    def __init__(self,n_display, series_list, nameWindow):  #n_display : number of shows to display when prog is launched,
+    def __init__(self, series_list, nameWindow):
                                                             # series_list = list of series to be displayed and retrieved from the API,
                                                             # nameWindow = name to be displayed on top of the indow
 
         super().__init__()
-        self.__nDisplay = n_display
-        self.__seriesList = series_list
+        self.__nDisplay = len(series_list) # Number of series displayed
+        self.__seriesList = series_list # List of series displayed at first
 
         # Load .ui designed on Qt
         self.__UI = uic.loadUi('main.ui', self)
@@ -160,7 +160,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__alertWindow = Afficher(self.__favouriteSeries,self)
         # self.alertWindow.seriesReleased.connect(self.slot_show_forthcoming_series)
         self.__alertWindow.start()
-        # self.alertWindow.quit()
 
         # Signal Mapper to connect slot_add_to_favourites to class MainWidget
         self.__sigMapper = QSignalMapper(self)
@@ -168,7 +167,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
 
 
         # Display series MainWidgets on MainWindow
-        self.__numberSeriesWidgetLines = ceil(n_display/5)      # 5 widgets per line maximum
+        self.__numberSeriesWidgetLines = ceil(self.__nDisplay/5)      # 5 widgets per line maximum
         self.__positions = [(i+1,j) for i in range(self.__numberSeriesWidgetLines) for j in range(5)]       # Define positions for the grid layout
         self.__seriesWidgetList = []
         for i in range(len(self.__seriesList)):      #Loop for creation and display of serie MainWidgets
@@ -197,7 +196,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             nm = serie.name
             self.__favouriteSeries += [serie]
             self.__favouritesWidget.addItem(nm)
-            self.__alertWindow.terminate()
+            self.__alertWindow.quit()
             self.__alertWindow = Afficher(self.__favouriteSeries, self)
             self.__alertWindow.start()
             with open(self.__fileName, "wb") as favFile:
@@ -214,7 +213,9 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         nm = serie.name
         self.__favouriteSeries += [serie]
         self.__favouritesWidget.addItem(nm)
-
+        self.__alertWindow.quit()
+        self.__alertWindow = Afficher(self.__favouriteSeries, self)
+        self.__alertWindow.start()
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
             pickler.dump(self.__favouriteSeries)
@@ -262,13 +263,15 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
                 pickler.dump(self.__favouriteSeries)
-                print(str(idx))
 
     # Slot that clears user's favourites list
     def slot_clear_favourites(self):
         self.__favouriteSeries = []
         self.__favouritesIDList = []
         self.__favouritesWidget.clear()
+        self.__alertWindow.quit()
+        self.__alertWindow = Afficher(self.__favouriteSeries, self)
+        self.__alertWindow.start()
         # Clear favourites file
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
@@ -278,7 +281,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         if (self.__alertWindow.notificationsEnabled):
             self.__alertWindow.notificationsEnabled = False
             self.__alertWindow.quit()
-            print("set to false")
         else:
             self.__alertWindow.notificationsEnabled = True
             self.__alertWindow = Afficher(self.__favouriteSeries, self)

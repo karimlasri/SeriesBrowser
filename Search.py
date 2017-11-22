@@ -29,12 +29,12 @@ C8 = "shows/" #Show episodes list (search by ID)
 # C13 = "shows/1/cast" #Show cast
 # C14 = "shows/1/crew" #Show crew
 
-def searchSeries(search_term): # search_term = input for the research, series_list = result list to be modified
-    req = Request(base_URL+C1+search_term, headers={'User-Agent': 'Mozilla/5.0'})
+def searchSeries(search_term): # takes search_term, a string, as an input for the research, and returns a list of Serie objects constructed from the result of the API
+    req = Request(base_URL+C1+search_term, headers={'User-Agent': 'Mozilla/5.0'}) # the URL that should be read
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
     series_list = []
-    for e in data:
+    for e in data: # parsing the json file
         name = e["show"]["name"]
         idnum = e["show"]["id"]
         name = e["show"]["name"]
@@ -48,16 +48,16 @@ def searchSeries(search_term): # search_term = input for the research, series_li
             image = e["show"]["image"]["medium"]
         else :
             image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
-        serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
-        series_list += [serie]
+        serie = Serie(idnum, name, language, genres, premiered, rating, image, summary) # constructing a Serie object from the parsed data
+        series_list += [serie] # appending the Serie object to the list to be returned
     return series_list
 
-def searchEpisodes(id, episodes_list):      # id = id of the serie, episodes_list = result list to be modified
-    req = Request(base_URL+C8+str(id)+"/episodes", headers={'User-Agent': 'Mozilla/5.0'})
+def searchEpisodes(id): # takes id, a number identifying a serie on the API, as an input for the research, and returns a list of Episode objects constructed from the list of episodes of the serie
+    req = Request(base_URL + C8 + str(id) + "/episodes", headers={'User-Agent': 'Mozilla/5.0'}) # the URL that should be read
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
-    del episodes_list[:]
-    for e in data:
+    episodes_list = []
+    for e in data: # parsing the json file
         name = e["name"]
         idnum = e["id"]
         name = e["name"]
@@ -71,14 +71,16 @@ def searchEpisodes(id, episodes_list):      # id = id of the serie, episodes_lis
             image = e["image"]["medium"]
         else :
             image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
-        episode = Episode(idnum, name, seas, nb, airdt, airtm, image, summary)
+        episode = Episode(idnum, name, seas, nb, airdt, airtm, image, summary) # constructing an Episode object from the parsed data
         episodes_list += [episode]
+    return(episodes_list)
 
 
-def searchSerie(id):        # id = id of the serie. This functions retrieves all information about a serie from the id and returns an object from class Serie
-    req = Request(base_URL + C8 + str(id), headers={'User-Agent': 'Mozilla/5.0'})
+def searchSerie(id): # id = id of the serie in the API. This functions retrieves all information about a serie from the id and returns an object from class Serie
+    req = Request(base_URL + C8 + str(id), headers={'User-Agent': 'Mozilla/5.0'}) # the URL that should be read
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
+    # parsing the json file
     idnum = data["id"]
     name = data["name"]
     language = data["language"]
@@ -89,9 +91,9 @@ def searchSerie(id):        # id = id of the serie. This functions retrieves all
     image = ""
     if data["image"] != None:
         image = data["image"]["medium"]
-    else:
+    else: # if the serie has no image
         image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
-    serie = Serie(idnum, name, language, genres, premiered, rating, image, summary)
+    serie = Serie(idnum, name, language, genres, premiered, rating, image, summary) # constructing a Serie object from the parsed data
     return(serie)
 
 #Finds a serie that's going to be aired soon and is not in IDList
