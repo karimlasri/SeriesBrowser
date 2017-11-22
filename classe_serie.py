@@ -15,28 +15,30 @@ class Serie:
         except ValueError:
             self.__id = 0
 
-        self.__name = nam
+        self.__name = nam # Name of the serie
         try:
             if (nam == "" or nam == None):
                 raise ValueError("The name shouldn't be empty.")
         except ValueError:
             self.__name = "Unnamed"
-        self.__image = img
+
+        self.__image = img # Image of the serie
         try:
             if (img == None):
                 raise ValueError("The image shouldn't be empty.")
             else:
                 self.__image = img["medium"]
-        except ValueError:
+        except ValueError: # If the serie has no image, a black image is loaded instead
             self.__image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
 
-        self.__summary = summ
+        self.__summary = summ # Summary of the serie
         try:
             if (summ == "" or summ == None):
                 raise ValueError("The summary shouldn't be empty.")
         except ValueError:
             self.__airtime = "No summary available."
 
+    #Getters
     @property
     def id(self):
         return self.__id
@@ -63,55 +65,56 @@ class Episode:
         except ValueError:
             self.__id = 1
 
-        self.__name = nam
+        self.__name = nam # Name of the episode
         try:
             if (nam == "" or nam == None):
                 raise ValueError("The name shouldn't be empty.")
         except ValueError:
             self.__name = "No name available"
 
-        self.__season = seas
+        self.__season = seas # Season of the episode
         try:
             if (seas == None):
                 raise ValueError("The season shouldn't be empty.")
         except ValueError:
             self.__season = 0
 
-        self.__number = nb
+        self.__number = nb # Number of the serie in the season
         try:
             if (nb == None):
                 raise ValueError("The number shouldn't be empty.")
         except ValueError:
             self.__number = 0
 
-        self.__airdate = airdt
+        self.__airdate = airdt # Airdate of the episode
         try:
             if (airdt == "" or airdt == None):
                 raise ValueError("The airdate shouldn't be empty.")
         except ValueError:
             self.__airdate = "2000-01-01"
 
-        self.__airtime = airtm
+        self.__airtime = airtm # Airtime of the episode
         try:
             if (airtm == "" or airtm == None):
                 raise ValueError("The airtime shouldn't be empty.")
         except ValueError:
             self.__airtime = "00:00"
 
-        self.__image = img
+        self.__image = img # Image of the episode
         try:
             if (img == None or img == ""):
                 raise ValueError("The image shouldn't be empty.")
-        except ValueError:
+        except ValueError: # If the episode has no image, a black one is loaded
             self.__image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
 
-        self.__summary = summ
+        self.__summary = summ # The summary of the episode
         try:
             if (summ == "" or summ == None):
                 raise ValueError("The summary shouldn't be empty.")
         except ValueError:
             self.__summary = "No summary available."
 
+    # Getters
     @property
     def id(self):
         return self.__id

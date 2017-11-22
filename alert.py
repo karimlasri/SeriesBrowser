@@ -18,6 +18,7 @@ class Afficher(QThread):
         self.__seriesReleased.connect(self.slot_show_forthcoming_series) # Connecting signal to function that displays forthcoming series
         self.__notificationsEnabled = notifEnabled # Bool that indicates whether notifications are enabled or not
 
+    # Getters and setters
     @property
     def favList(self):
         return self.__favList
@@ -56,7 +57,7 @@ class Afficher(QThread):
     def display_forthcoming_episodes(self):
         self.__displayList = []
         self.__now = datetime.datetime.now()
-        for serie in self.__favList:
+        for serie in self.__favList: # Testing all episodes from all series in favourite list to check whether they will be aired soon
             epList = searchEpisodes(serie.id)
             for ep in epList:
                 year = int(ep.airdate[:4])
@@ -66,9 +67,8 @@ class Afficher(QThread):
                 min = int(ep.airtime[3:4])
                 timeRelease = datetime.datetime(year,month,day,hour,min)
                 timeDelta = timeRelease - self.__now
-                # print(timeDelta)
                 if (timeDelta.days < 2) and (timeDelta.days >= 0) and (timeDelta.seconds >= 0): # Tests whether the episode is aired within two days
                     self.__displayList += [(serie.name,ep)]
-        if self.__displayList != [] and self.__notificationsEnabled:
+        if self.__displayList != [] and self.__notificationsEnabled: # If there are episodes to display, a signal is emitted, activating slot_show_forthcoming_series
             print(self.__notificationsEnabled)
             self.__seriesReleased.emit()

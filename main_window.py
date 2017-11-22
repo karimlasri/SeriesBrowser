@@ -1,12 +1,3 @@
-"""
-Created on Thu Oct  5 14:58:00 2017
-
-@author: Karim
-"""
-
-#controller, MVC
-# -*- coding: utf-8 -*-
-
 import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFrame, QSpacerItem, QSizePolicy, QLabel, QWidget, QPushButton, QScrollArea, QGridLayout, QListWidget, QVBoxLayout, QLineEdit, QHBoxLayout, QMessageBox, QCheckBox
@@ -57,31 +48,6 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
 
         self.__serieWind.setObjectName("serieWind")
         self.setStyleSheet("#serieWind{background-color: black;}")      # Define color of the scroll area
-        self.__scrollArea.verticalScrollBar().setStyleSheet("QScrollBar:vertical {"     # Define style of scroll area              
-        "    border: 1px solid #999999;"
-        "    background:white;"
-        "    width:10px;    "
-        "    margin: 0px 0px 0px 0px;"
-        "}"
-        "QScrollBar::handle:vertical {"
-        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-        "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130), stop:1 rgb(32, 47, 130));"
-        "    min-height: 0px;"
-        "}"
-        "QScrollBar::add-line:vertical {"
-        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-        "    stop: 0 rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
-        "    height: 0px;"
-        "    subcontrol-position: bottom;"
-        "    subcontrol-origin: margin;"
-        "}"
-        "QScrollBar::sub-line:vertical {"
-        "    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
-        "    stop: 0  rgb(32, 47, 130), stop: 0.5 rgb(32, 47, 130),  stop:1 rgb(32, 47, 130));"
-        "    height: 0 px;"
-        "    subcontrol-position: top;"
-        "    subcontrol-origin: margin;"
-        "}")
 
         #  Add research bar
         self.__searchWidget = QLineEdit()
@@ -95,18 +61,17 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
         self.__researchButton.pressed.connect(self.slot_research)       # Connect the signal pressed to slot_research
         self.__UI.horizontalLayout.addWidget(self.__researchButton)     # Insert research button in layout from .ui  # Add favourites title
 
-        # Favourites
-        # Layout
+        # Favourites Layout
         self.__favLayout = QVBoxLayout()
         self.__UI.horizontalLayout_2.addLayout(self.__favLayout)
 
-        # Title
+        # Favourites Title
         self.__favouritesTitle = QLabel("Favourites")
         self.__favouritesTitle.setText(
             "<span style=' font-size:16pt; font-weight:600; color:#aa0000;'> Favourites </span>")
         self.__favLayout.addWidget(self.__favouritesTitle)
 
-        #  Add favourites list with a QListWidget
+        #  Add favourites list to the layout with a QListWidget
         self.__favouritesWidget = QListWidget()
         self.__favouritesWidget.setMaximumWidth(250)
         self.__favLayout.addWidget(self.__favouritesWidget)
@@ -149,7 +114,7 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
         if (os.path.exists(self.__fileName)) and (os.path.getsize(self.__fileName) > 0):        #Check if the file exists
             with open(self.__fileName, "rb") as favFile:
                 depickler = pickle.Unpickler(favFile)
-                self.__favouriteSeries = depickler.load()
+                self.__favouriteSeries = depickler.load()       #Loading previously saved favourites from file
                 for i in range(len(self.__favouriteSeries)):        #Loop to add favourites series to favourite QWidgetList and create favouritesIDList
                     favItem = self.__favouriteSeries[i].name
                     self.__favouritesWidget.addItem(favItem)
@@ -176,7 +141,7 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
             self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
             currentWidget.favButton.clicked.connect(self.__sigMapper.map)       #Connect add to favourite button of MainWidget to signal mapper
 
-    # Getters and setters
+    # Getters and setters for seriesList
     @property
     def seriesList(self):
         return self.__seriesList
@@ -199,11 +164,11 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
             self.__alertWindow.start()
             with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
-                pickler.dump(self.__favouriteSeries)
+                pickler.dump(self.__favouriteSeries) # Saving refreshed favourites list
         else:       # If the serie is already in the favourites, displaying an error message
             error_dialog = QMessageBox.information(None,"Error","Favourite already added.",QMessageBox.Cancel)
 
-
+    # The slot that adds a serie that has a soon-to-be-aired episode to favourites
     def slot_magic_add_to_favourites(self):
         serie = findForthcomingSerie(self.__favouritesIDList)
         id = serie.id
@@ -216,7 +181,37 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
         self.__alertWindow.start()
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
-            pickler.dump(self.__favouriteSeries)
+            pickler.dump(self.__favouriteSeries) # Saving refreshed favourites list
+
+    # Slot to remove a serie from user's favourites list
+    def slot_remove_favourite(self):
+        idx = self.__favouritesWidget.currentRow()  # The index of the selected row
+        if (idx == -1):  # Exception if the user didn't select a favourite before clicking "remove favourite" button
+            QMessageBox.information(None, "Error", "You didn't select a favourite.", QMessageBox.Ok)
+        else:
+            del self.__favouriteSeries[
+                idx]  # The favourites widget list and the inner user's favourites list are sorted in the same order
+            del self.__favouritesIDList[idx]
+            self.__favouritesWidget.takeItem(idx)
+            self.__alertWindow.quit()
+            self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
+            self.__alertWindow.start()
+            with open(self.__fileName, "wb") as favFile:
+                pickler = pickle.Pickler(favFile)
+                pickler.dump(self.__favouriteSeries)  # Saving refreshed favourites list
+
+    # Slot that clears user's favourites list
+    def slot_clear_favourites(self):
+        self.__favouriteSeries = []
+        self.__favouritesIDList = []
+        self.__favouritesWidget.clear()
+        self.__alertWindow.quit()
+        self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
+        self.__alertWindow.start()
+        # Clear favourites file
+        with open(self.__fileName, "wb") as favFile:
+            pickler = pickle.Pickler(favFile)
+            pickler.dump(self.__favouriteSeries)  # Saving refreshed favourites list
 
     # Slot to open window with more information for favourites
     def slot_open_serie_window(self):
@@ -228,9 +223,8 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
                 ser = self.__favouriteSeries[idx]
                 self.__newWindow = NewWindow(ser, self)
                 self.__newWindow.exec_()
-        except ValueError:
+        except ValueError: # If the user hasn't selected an element from the list, currentRow returns -1 and an error dialog is displayed
             QMessageBox.information(None, "Error", "You didn't select a serie in your list.", QMessageBox.Cancel)
-        #id = self.__favouritesIDList[idx]
 
     # Slot to do the research
     def slot_research(self):
@@ -250,35 +244,7 @@ class MainWindow(QMainWindow): #Main window of the Serie Browser
             self.__sigMapper.setMapping(currentWidget.favButton, currentWidget.id)
             currentWidget.favButton.clicked.connect(self.__sigMapper.map)
 
-    # Slot to remove a serie from user's favourites list
-    def slot_remove_favourite(self):
-        idx = self.__favouritesWidget.currentRow() # The index of the selected row
-        if (idx == -1): # Exception if the user didn't select a favourite before clicking "remove favourite" button
-            QMessageBox.information(None, "Error", "You didn't select a favourite.", QMessageBox.Ok)
-        else:
-            del self.__favouriteSeries[idx] # The favourites widget list and the inner user's favourites list are sorted in the same order
-            del self.__favouritesIDList[idx]
-            self.__favouritesWidget.takeItem(idx)
-            self.__alertWindow.quit()
-            self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
-            self.__alertWindow.start()
-            with open(self.__fileName, "wb") as favFile:
-                pickler = pickle.Pickler(favFile)
-                pickler.dump(self.__favouriteSeries)
-
-    # Slot that clears user's favourites list
-    def slot_clear_favourites(self):
-        self.__favouriteSeries = []
-        self.__favouritesIDList = []
-        self.__favouritesWidget.clear()
-        self.__alertWindow.quit()
-        self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
-        self.__alertWindow.start()
-        # Clear favourites file
-        with open(self.__fileName, "wb") as favFile:
-            pickler = pickle.Pickler(favFile)
-            pickler.dump(self.__favouriteSeries)
-
+    # A slot that is activated when the notifications checkbox is checked or unchecked. It starts and stops the notifications thread
     def slot_change_notifications_state(self):
         if (self.__alertWindow.notificationsEnabled):
             self.__alertWindow.notificationsEnabled = False
@@ -297,7 +263,7 @@ class MainWidget(QFrame):
         self.__ser = serie
         self.__id = serie.id
 
-        # Look
+        # Style
         self.setFrameStyle(1)
         self.setLineWidth(3)
         self.setObjectName("mainWidget")
