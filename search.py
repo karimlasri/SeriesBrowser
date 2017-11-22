@@ -25,7 +25,8 @@ def searchSeries(search_term): # takes search_term, a string, as an input for th
         series_list += [serie] # appending the Serie object to the list to be returned
     return series_list
 
-def searchEpisodes(id): # takes id, a number identifying a serie on the API, as an input for the research, and returns a list of Episode objects constructed from the list of episodes of the serie
+def searchEpisodes(id): # takes id, a number identifying a serie on the API, as an input for the research,
+                        # and returns a list of Episode objects constructed from the list of episodes of the serie
     req = Request(base_URL + C8 + str(id) + "/episodes", headers={'User-Agent': 'Mozilla/5.0'}) # the URL that should be read
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())

@@ -35,9 +35,6 @@ class Afficher(QThread):
     def notificationsEnabled(self, newValue):
         if (type(newValue == bool)):
             self.__notificationsEnabled = newValue
-            print("changed value to :")
-            print(self.__notificationsEnabled)
-        #else raiseError
 
     # Function that displays forthcoming series in a message box
     def slot_show_forthcoming_series(self):
@@ -70,5 +67,4 @@ class Afficher(QThread):
                 if (timeDelta.days < 2) and (timeDelta.days >= 0) and (timeDelta.seconds >= 0): # Tests whether the episode is aired within two days
                     self.__displayList += [(serie.name,ep)]
         if self.__displayList != [] and self.__notificationsEnabled: # If there are episodes to display, a signal is emitted, activating slot_show_forthcoming_series
-            print(self.__notificationsEnabled)
             self.__seriesReleased.emit()
