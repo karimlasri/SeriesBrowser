@@ -15,15 +15,15 @@ from PyQt5.QtCore import QSize, pyqtSignal, QSignalMapper
 from PyQt5 import QtCore
 from math import ceil
 from urllib.request import Request, urlopen
-import ClasseSerie
-from Search import searchSeries, searchSerie, findForthcomingSerie
+import classe_serie
+from search import searchSeries, searchSerie, findForthcomingSerie
 import datetime #A enlever par la suite
 import os
-from newwindow import *
+from new_window import *
 import pickle
 from alert import Afficher
 
-class MyWindow(QMainWindow): #Main window of the Serie Browser
+class MainWindow(QMainWindow): #Main window of the Serie Browser
 
 
     def __init__(self, series_list, nameWindow):

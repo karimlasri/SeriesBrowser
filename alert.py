@@ -2,9 +2,9 @@ from threading import Thread
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QMessageBox
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 import datetime
-import ClasseSerie
-import mainwindow
-from Search import searchEpisodes, searchSerie
+import classe_serie
+import main_window
+from search import searchEpisodes, searchSerie
 
 class Afficher(QThread):
 

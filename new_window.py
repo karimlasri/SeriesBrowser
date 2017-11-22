@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QListWidget, QTextEdit
-from ClasseSerie import *
-from Search import searchEpisodes
+from classe_serie import *
+from search import searchEpisodes
 
 # Class NewWindow is a QDialog displaying informations about the serie : summary, list of episods and summaries of episods
 class NewWindow(QDialog):
