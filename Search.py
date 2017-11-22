@@ -43,11 +43,13 @@ def searchSeries(search_term): # takes search_term, a string, as an input for th
         premiered = e["show"]["premiered"]
         rating = e["show"]["rating"]
         summary = e["show"]["summary"]
-        image = ""
-        if e["show"]["image"] != None:
-            image = e["show"]["image"]["medium"]
-        else :
-            image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
+        image = e["show"]["image"]
+        # image = ""
+        # if e["show"]["image"] != None:
+        #     image = e["show"]["image"]["medium"]
+        # else :
+        #     image = None
+        #     image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
         serie = Serie(idnum, name, language, genres, premiered, rating, image, summary) # constructing a Serie object from the parsed data
         series_list += [serie] # appending the Serie object to the list to be returned
     return series_list
@@ -88,11 +90,7 @@ def searchSerie(id): # id = id of the serie in the API. This functions retrieves
     premiered = data["premiered"]
     rating = data["rating"]
     summary = data["summary"]
-    image = ""
-    if data["image"] != None:
-        image = data["image"]["medium"]
-    else: # if the serie has no image
-        image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
+    image = data["image"]
     serie = Serie(idnum, name, language, genres, premiered, rating, image, summary) # constructing a Serie object from the parsed data
     return(serie)
 

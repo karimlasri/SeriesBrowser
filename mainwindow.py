@@ -219,7 +219,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             pickler = pickle.Pickler(favFile)
             pickler.dump(self.__favouriteSeries)
 
-
     # Slot to open window with more information for favourites
     def slot_open_serie_window(self):
         idx = self.__favouritesWidget.currentRow()
@@ -233,8 +232,6 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         except ValueError:
             QMessageBox.information(None, "Error", "You didn't select a serie in your list.", QMessageBox.Cancel)
         #id = self.__favouritesIDList[idx]
-
-
 
     # Slot to do the research
     def slot_research(self):
@@ -361,7 +358,7 @@ class MainWidget(QFrame):
     def id(self,newid):
         self.__id = newid
 
-    # Methods and slots
-    def slot_open_new_window(self): # Slot to open description window about a serie
+    # Slot to open description window about a serie when the button "more info" is clicked
+    def slot_open_new_window(self):
         self.__newWindow = NewWindow(self.__ser, self)
         self.__newWindow.exec_()
