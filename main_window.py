@@ -19,7 +19,7 @@ import classe_serie
 from search import searchSeries, searchSerie, findForthcomingSerie
 import datetime #A enlever par la suite
 import os
-from new_window import *
+from more_info_window import *
 import pickle
 from alert import Afficher
 
