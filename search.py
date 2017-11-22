@@ -38,19 +38,9 @@ def searchSeries(search_term): # takes search_term, a string, as an input for th
         name = e["show"]["name"]
         idnum = e["show"]["id"]
         name = e["show"]["name"]
-        language = e["show"]["language"]
-        genres = e["show"]["genres"]
-        premiered = e["show"]["premiered"]
-        rating = e["show"]["rating"]
         summary = e["show"]["summary"]
         image = e["show"]["image"]
-        # image = ""
-        # if e["show"]["image"] != None:
-        #     image = e["show"]["image"]["medium"]
-        # else :
-        #     image = None
-        #     image = "http://www.solidbackgrounds.com/images/2560x1440/2560x1440-black-solid-color-background.jpg"
-        serie = Serie(idnum, name, language, genres, premiered, rating, image, summary) # constructing a Serie object from the parsed data
+        serie = Serie(idnum, name, image, summary) # constructing a Serie object from the parsed data
         series_list += [serie] # appending the Serie object to the list to be returned
     return series_list
 
@@ -85,24 +75,20 @@ def searchSerie(id): # id = id of the serie in the API. This functions retrieves
     # parsing the json file
     idnum = data["id"]
     name = data["name"]
-    language = data["language"]
-    genres = data["genres"]
-    premiered = data["premiered"]
-    rating = data["rating"]
     summary = data["summary"]
     image = data["image"]
-    serie = Serie(idnum, name, language, genres, premiered, rating, image, summary) # constructing a Serie object from the parsed data
+    serie = Serie(idnum, name, image, summary) # constructing a Serie object from the parsed data
     return(serie)
 
 #Finds a serie that's going to be aired soon and is not in IDList
 def findForthcomingSerie(IDList):
     now = datetime.datetime.now()
-    req = Request(base_URL + C5, headers={'User-Agent': 'Mozilla/5.0'})
+    req = Request(base_URL + C5, headers={'User-Agent': 'Mozilla/5.0'}) # the URL that should be read
     webpage = urlopen(req).read()
     data = json.loads(webpage.decode())
     found = False
     i = 0
-    while (found != True) and (i < len(data)):
+    while (found != True) and (i < len(data)): # browsing series that are soon to be aired and parsing the data
         id_serie = data[i]["show"]["id"]
         year = int(data[i]["airdate"][:4])
         month = int(data[i]["airdate"][5:7])
@@ -111,15 +97,15 @@ def findForthcomingSerie(IDList):
         min = int(data[i]["airtime"][3:4])
         timeRelease = datetime.datetime(year, month, day, hour, min)
         timeDelta = timeRelease - now
+        # comparing the airtime to the actual time
         if timeDelta.days >= 0 and timeDelta.seconds >= 0 and id_serie not in IDList:
             serie = searchSerie(id_serie)
             found = True
         else:
             i = i + 1
-    # if i == len(data): lever une exception
-    #    raiseError
     return serie
 
+# Researches the results from two random letters to fill the homepage
 def randomSearch():
     seriesList = []
     seriesList += searchSeries(random.choice(string.ascii_lowercase))

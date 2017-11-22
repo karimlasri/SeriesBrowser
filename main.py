@@ -10,6 +10,7 @@ from search import randomSearch
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    # executing main window
     ex = MainWindow(randomSearch(), "HomePage")
     sys.exit(app.exec_())
 

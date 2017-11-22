@@ -7,7 +7,7 @@ Created on Tue Oct 17 14:33:35 2017
 
 # Class to store series
 class Serie:
-    def __init__(self, idnum, nam, lang, genr, prem, rat, img, summ):
+    def __init__(self, idnum, nam, img, summ):
         self.__id = idnum # Unique id
         try:
             if (idnum == None):
@@ -21,10 +21,6 @@ class Serie:
                 raise ValueError("The name shouldn't be empty.")
         except ValueError:
             self.__name = "Unnamed"
-        # self.language = lang
-        # self.genres = genr
-        # self.premiered = prem
-        # self.rating = rat
         self.__image = img
         try:
             if (img == None):

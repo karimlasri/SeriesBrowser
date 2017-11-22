@@ -25,7 +25,6 @@ from alert import Afficher
 
 class MainWindow(QMainWindow): #Main window of the Serie Browser
 
-
     def __init__(self, series_list, nameWindow):
                                                             # series_list = list of series to be displayed and retrieved from the API,
                                                             # nameWindow = name to be displayed on top of the indow
