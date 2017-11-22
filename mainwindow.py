@@ -157,8 +157,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
                     self.__favouritesIDList += [self.__favouriteSeries[i].id]
 
         #Alert
-        self.__alertWindow = Afficher(self.__favouriteSeries,self)
-        # self.alertWindow.seriesReleased.connect(self.slot_show_forthcoming_series)
+        self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
         self.__alertWindow.start()
 
         # Signal Mapper to connect slot_add_to_favourites to class MainWidget
@@ -197,7 +196,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             self.__favouriteSeries += [serie]
             self.__favouritesWidget.addItem(nm)
             self.__alertWindow.quit()
-            self.__alertWindow = Afficher(self.__favouriteSeries, self)
+            self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
             self.__alertWindow.start()
             with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
@@ -214,7 +213,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__favouriteSeries += [serie]
         self.__favouritesWidget.addItem(nm)
         self.__alertWindow.quit()
-        self.__alertWindow = Afficher(self.__favouriteSeries, self)
+        self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
         self.__alertWindow.start()
         with open(self.__fileName, "wb") as favFile:
             pickler = pickle.Pickler(favFile)
@@ -224,10 +223,17 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
     # Slot to open window with more information for favourites
     def slot_open_serie_window(self):
         idx = self.__favouritesWidget.currentRow()
+        try:
+            if idx == -1:
+                raise ValueError("No row is selected in favourites widget.")
+            else:
+                ser = self.__favouriteSeries[idx]
+                self.__newWindow = NewWindow(ser, self)
+                self.__newWindow.exec_()
+        except ValueError:
+            QMessageBox.information(None, "Error", "You didn't select a serie in your list.", QMessageBox.Cancel)
         #id = self.__favouritesIDList[idx]
-        ser = self.__favouriteSeries[idx]
-        self.__newWindow = NewWindow(ser, self)
-        self.__newWindow.exec_()
+
 
 
     # Slot to do the research
@@ -258,7 +264,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             del self.__favouritesIDList[idx]
             self.__favouritesWidget.takeItem(idx)
             self.__alertWindow.quit()
-            self.__alertWindow = Afficher(self.__favouriteSeries,self)
+            self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
             self.__alertWindow.start()
             with open(self.__fileName, "wb") as favFile:
                 pickler = pickle.Pickler(favFile)
@@ -270,7 +276,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
         self.__favouritesIDList = []
         self.__favouritesWidget.clear()
         self.__alertWindow.quit()
-        self.__alertWindow = Afficher(self.__favouriteSeries, self)
+        self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
         self.__alertWindow.start()
         # Clear favourites file
         with open(self.__fileName, "wb") as favFile:
@@ -283,7 +289,7 @@ class MyWindow(QMainWindow): #Main window of the Serie Browser
             self.__alertWindow.quit()
         else:
             self.__alertWindow.notificationsEnabled = True
-            self.__alertWindow = Afficher(self.__favouriteSeries, self)
+            self.__alertWindow = Afficher(self.__favouriteSeries, self.__enableNotifications.isChecked(), self)
             self.__alertWindow.start()
 
 # Class for the main widget

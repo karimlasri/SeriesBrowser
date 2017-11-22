@@ -11,12 +11,12 @@ class Afficher(QThread):
     # On pyqt, signals can't be defined in init function and should be initialized before
     __seriesReleased = pyqtSignal()
 
-    def __init__(self, favList, parent = None):
+    def __init__(self, favList, notifEnabled, parent = None):
         QThread.__init__(self)
         self.__favList = favList # Complete list of user's favourites
         self.__displayList = [] # List of episodes that will be aired soon
         self.__seriesReleased.connect(self.slot_show_forthcoming_series) # Connecting signal to function that displays forthcoming series
-        self.__notificationsEnabled = True # Bool that indicates whether notifications are enabled or not
+        self.__notificationsEnabled = notifEnabled # Bool that indicates whether notifications are enabled or not
 
     @property
     def favList(self):
@@ -34,6 +34,8 @@ class Afficher(QThread):
     def notificationsEnabled(self, newValue):
         if (type(newValue == bool)):
             self.__notificationsEnabled = newValue
+            print("changed value to :")
+            print(self.__notificationsEnabled)
         #else raiseError
 
     # Function that displays forthcoming series in a message box
@@ -67,5 +69,6 @@ class Afficher(QThread):
                 # print(timeDelta)
                 if (timeDelta.days < 2) and (timeDelta.days >= 0) and (timeDelta.seconds >= 0): # Tests whether the episode is aired within two days
                     self.__displayList += [(serie.name,ep)]
-        if self.__displayList != []:
+        if self.__displayList != [] and self.__notificationsEnabled:
+            print(self.__notificationsEnabled)
             self.__seriesReleased.emit()
